@@ -1,5 +1,5 @@
 
-package com.precabal.app;
+package sparkUtils.DistributedParse;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
