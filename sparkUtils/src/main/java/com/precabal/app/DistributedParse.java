@@ -52,12 +52,12 @@ public final class DistributedParse {
 		});
 		
 		
-		System.out.print(linesNoBreaks.first());
+		//System.out.print(linesNoBreaks.first());
 		
 		
 		/* save output */		
 		
-		lines.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		linesNoBreaks.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 	
 		context.stop();
 	}
