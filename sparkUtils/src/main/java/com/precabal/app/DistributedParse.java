@@ -35,12 +35,12 @@ public final class DistributedParse {
 		JavaRDD<String> strippedLines = lines.map(new Function<String, String>() {
 			@Override
 			public String call(String s) {
-				/*
+				
 				if ( s.equals("WARC/1.0") )
 					s = System.lineSeparator().concat(s);
 				
-				s.substring(0, s.length()-2);
-				*/
+				//s.substring(0, s.length()-2);
+				
 				s.concat("poto");
 				return s;
 			}
