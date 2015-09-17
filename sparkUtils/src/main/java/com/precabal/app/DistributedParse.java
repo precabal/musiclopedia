@@ -7,7 +7,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 
 
-
+import java.util.List;
 import java.util.regex.Pattern;
 
 public final class DistributedParse {
