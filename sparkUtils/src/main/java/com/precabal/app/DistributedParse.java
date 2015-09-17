@@ -46,7 +46,7 @@ public final class DistributedParse {
 			}
 		});
 		
-		
+		strippedLines.collect();
 		/* save output */
 
 		strippedLines.saveAsTextFile("outputText");
