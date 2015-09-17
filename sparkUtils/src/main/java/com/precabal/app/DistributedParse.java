@@ -42,7 +42,6 @@ public final class DistributedParse {
 				s.substring(0, s.length()-2);
 				*/
 				s.concat("poto");
-				s.saveAsTextFile("outputText");
 				return s;
 			}
 		});
@@ -50,7 +49,7 @@ public final class DistributedParse {
 		//strippedLines.collect();
 		/* save output */
 
-		//strippedLines.saveAsTextFile("outputText");
+		lines.saveAsTextFile("outputText");
 	
 		context.stop();
 	}
