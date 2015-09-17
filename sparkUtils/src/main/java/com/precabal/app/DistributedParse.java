@@ -41,6 +41,7 @@ public final class DistributedParse {
 		
 		/* process each line to remove the linebreak */
 		
+		/*
 		JavaRDD<String> linesNoBreaks = lines.map(new Function<Text, String>() {
 		
 			@Override
@@ -49,6 +50,7 @@ public final class DistributedParse {
 				return output;
 			}
 		});
+		*/
 		
 		
 		/* save output */		
