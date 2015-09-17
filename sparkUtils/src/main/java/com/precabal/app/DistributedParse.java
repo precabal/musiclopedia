@@ -46,11 +46,11 @@ public final class DistributedParse {
 			}
 		});
 		
-		List<String> linesNonRDD = strippedLines.collect();
+		List<String> linesNonRDD = lines.collect();
 		/* save output */
 		for(int i = 0; i<linesNonRDD.size(); i++)
 		{
-			System.out.println(linesNonRDD.get(i));
+			System.out.print(linesNonRDD.get(i));
 		}
 
 		lines.saveAsTextFile("outputText");
