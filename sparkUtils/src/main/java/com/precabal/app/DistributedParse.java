@@ -39,8 +39,7 @@ public final class DistributedParse {
 				if ( s.equals("WARC/1.0") )
 					s = System.lineSeparator().concat(s);
 				
-				//s.substring(0, s.length()-2);
-				
+				//see why this in not working
 				s.concat("poto");
 				return s;
 			}
@@ -50,6 +49,7 @@ public final class DistributedParse {
 		/* save output */
 		for(int i = 0; i<linesNonRDD.size(); i++)
 		{
+			//ADD A SPACE FOR EACH LINE BREAK
 			System.out.print(linesNonRDD.get(i));
 		}
 
