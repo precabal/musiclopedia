@@ -1,5 +1,5 @@
 
-package sparkUtils;
+package com.precabal.app;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
