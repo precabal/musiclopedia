@@ -45,13 +45,16 @@ public final class DistributedParse {
 			}
 		});
 		
-		List<String> linesNonRDD = strippedLines.collect();
 		/* save output */
+		/*
+		List<String> linesNonRDD = strippedLines.collect();
+		
 		for(int i = 0; i<linesNonRDD.size(); i++)
 		{
 			//ADD A SPACE FOR EACH LINE BREAK
 			System.out.print(linesNonRDD.get(i));
 		}
+		*/
 
 		lines.saveAsTextFile("outputText");
 	
