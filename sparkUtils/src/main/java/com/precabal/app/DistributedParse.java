@@ -52,6 +52,8 @@ public final class DistributedParse {
 		});
 		*/
 		
+		System.out.print(lines.first().toString());
+		
 		
 		/* save output */		
 		
