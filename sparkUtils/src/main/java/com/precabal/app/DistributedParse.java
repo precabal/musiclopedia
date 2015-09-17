@@ -46,8 +46,9 @@ public final class DistributedParse {
 			}
 		});
 		
-		lines = lines.collect();
+		List<String> linesNonRDD = lines.collect();
 		/* save output */
+		System.out.println("potito");
 
 		lines.saveAsTextFile("outputText");
 	
