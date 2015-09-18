@@ -29,7 +29,7 @@ public final class DistributedParse {
 		/* setup TODO: mod this to include subsequent registers */    	
     	String newLine = System.lineSeparator();
     	Configuration conf = new Configuration();
-    	conf.set("textinputformat.record.delimiter", "WARC/1.0"+newLine+"WARC-Type: conversion"+newLine+"WARC-Target-URI:");
+    	conf.set("textinputformat.record.delimiter", "WARC/1.0"+newLine+"WARC-Type: conversion"+newLine+"WARC-Target-URI: ");
 
     	SparkConf sparkConf = new SparkConf().setAppName("JavaSearchForExpression");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);		
@@ -37,7 +37,7 @@ public final class DistributedParse {
 		
 		/* read text file */
 		
-		JavaRDD<Text> lines = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
+		JavaRDD<Text> lines = context.newAPIHadoopFile(args[0], TextInputFormat.class, Text.class, Text.class, conf).keys();
 		
 		
 		/* process each line to remove the linebreak */
