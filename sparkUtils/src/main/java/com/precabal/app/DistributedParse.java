@@ -42,16 +42,15 @@ public final class DistributedParse {
 		
 		/* process each line to remove the linebreak */
 		
-		
 		JavaRDD<String> linesNoBreaks = records.map(new Function<Text, String>() {
 		
 			@Override
 			public String call(Text input) {
-				return input.toString(); //.replaceAll("\\r?\\n", " ");
+				return input.toString().replaceAll("\\r?\\n", " ");
 			}
 		});
 		
-		final String test = "Miley Cyrus";
+		final String test = "Madonna";
 		
 		JavaRDD<String> filteredLines = linesNoBreaks.filter(new Function<String, Boolean>() {
 			
