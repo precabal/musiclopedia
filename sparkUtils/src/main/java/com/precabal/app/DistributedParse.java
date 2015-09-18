@@ -92,7 +92,7 @@ public final class DistributedParse {
 		
 		/* save output */		
 		
-		pairs1.join(pairs2).join(pairs3).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		pairs1.join(pairs2).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 	
 		context.stop();
 	}
