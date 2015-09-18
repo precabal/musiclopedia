@@ -8,7 +8,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
@@ -37,16 +37,16 @@ public final class DistributedParse {
 		
 		/* read text file */
 		
-		JavaRDD<Text> lines = context.newAPIHadoopFile(args[0], TextInputFormat.class, Text.class, Text.class, conf).keys();
+		JavaRDD<Text> lines = context.newAPIHadoopFile(args[0], TextInputFormat.class, ByteWritable.class, Text.class, conf).keys();
 		
 		
 		/* process each line to remove the linebreak */
 		
 		
-		JavaRDD<String> linesNoBreaks = lines.map(new Function<Text, String>() {
+		JavaRDD<String> linesNoBreaks = lines.map(new Function<ByteWritable, String>() {
 		
 			@Override
-			public String call(Text input) {
+			public String call(ByteWritable input) {
 				String output = input.toString().replace(System.lineSeparator(), " ");
 				return output;
 			}
