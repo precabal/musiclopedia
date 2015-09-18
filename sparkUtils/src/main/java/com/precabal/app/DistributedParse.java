@@ -105,9 +105,7 @@ public final class DistributedParse {
 			public Tuple2<Tuple2<String, String>, Integer> call(Tuple2<String, String> input) {
 				return new Tuple2<Tuple2<String, String>, Integer>(input, 1);
 			}
-		});
-
-		pairs.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		}).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 
 		context.stop();
 	}
