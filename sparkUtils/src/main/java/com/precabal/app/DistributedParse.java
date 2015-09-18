@@ -8,7 +8,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.ByteWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
@@ -29,7 +29,7 @@ public final class DistributedParse {
 		/* setup TODO: mod this to include subsequent registers */    	
     	String newLine = System.lineSeparator();
     	Configuration conf = new Configuration();
-    	conf.set("textinputformat.record.delimiter", "WARC/1.0"+newLine+"WARC-Type: conversion"+newLine+"WARC-Target-URI: ");
+    	conf.set("textinputformat.record.delimiter", "WARC/1.0"+newLine+"WARC-Type: conversion"+newLine);
 
     	SparkConf sparkConf = new SparkConf().setAppName("JavaSearchForExpression");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);		
@@ -37,16 +37,16 @@ public final class DistributedParse {
 		
 		/* read text file */
 		
-		JavaRDD<Text> lines = context.newAPIHadoopFile(args[0], TextInputFormat.class, ByteWritable.class, Text.class, conf).keys();
+		JavaRDD<Text> lines = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
 		
 		
 		/* process each line to remove the linebreak */
 		
 		
-		JavaRDD<String> linesNoBreaks = lines.map(new Function<ByteWritable, String>() {
+		JavaRDD<String> linesNoBreaks = lines.map(new Function<Text, String>() {
 		
 			@Override
-			public String call(ByteWritable input) {
+			public String call(Text input) {
 				String output = input.toString().replace(System.lineSeparator(), " ");
 				return output;
 			}
