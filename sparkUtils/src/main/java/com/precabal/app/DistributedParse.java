@@ -21,6 +21,23 @@ public final class DistributedParse {
 
 	public static void main(String[] args) throws Exception {
 
+		class FindString implements Function<String, Boolean> {
+			
+			private String target;
+			public FindString(String target) { this.target = target; }
+			@Override
+			public Boolean call(String s) {
+				if(s.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
+					if( s.toLowerCase().contains(target.toLowerCase()) )
+						return true;
+				}
+
+				return false;
+			}
+		}
+
+
+
 		/* error checking */
     	if (args.length < 1) {
       		System.err.println("Usage: JavaWordCount <file>");
@@ -50,21 +67,10 @@ public final class DistributedParse {
 			}
 		});
 		
-		final String test = "Madonna";
+		final String artist1 = "Madonna";
 		
-		JavaRDD<String> filteredLines = linesNoBreaks.filter(new Function<String, Boolean>() {
-			
-			@Override
-			public Boolean call(String s) {
-				if(s.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
-					if( s.toLowerCase().contains(test.toLowerCase()) )
-						return true;
-				}
-
-				return false;
-			}
-				
-		});
+		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new FindString(artist1));
+		
 		
 		JavaPairRDD<String,String> pairs = filteredLines.mapToPair(new PairFunction<String,String,String>() {
 			
