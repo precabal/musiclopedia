@@ -21,10 +21,10 @@ public final class DistributedParse {
 
 	public static void main(String[] args) throws Exception {
 
-		class FindString implements Function<String, Boolean> {
+		class LookForString implements Function<String, Boolean> {
 			
 			private String target;
-			public FindString(String target) { this.target = target; }
+			public LookForString(String target) { this.target = target; }
 			@Override
 			public Boolean call(String s) {
 				if(s.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
@@ -34,6 +34,16 @@ public final class DistributedParse {
 
 				return false;
 			}
+		}
+		
+		class CreateTuple implements PairFunction<String,String,String> {
+			private String target;
+			public CreateTuple(String target) { this.target = target; }
+			@Override
+			public scala.Tuple2<String,String> call(String s) {
+				return new scala.Tuple2<String,String>(target,s.substring(47, s.indexOf(" ", 48))) ;
+			}
+				
 		}
 
 
@@ -67,25 +77,22 @@ public final class DistributedParse {
 			}
 		});
 		
-		final String artist1 = "Madonna";
+		String artist1 = "Madonna";
+		String artist2 = "Miley Cyrus";
+		String artist3 = "Rage Against The Machine";
 		
-		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new FindString(artist1));
+		//linesNoBreaks.persist(StorageLevel.MEMORY_ONLY());
+		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new LookForString(artist1));
+		JavaRDD<String> linesWithArtist2 = linesNoBreaks.filter(new LookForString(artist2));
+		JavaRDD<String> linesWithArtist3 = linesNoBreaks.filter(new LookForString(artist3));
 		
-		
-		JavaPairRDD<String,String> pairs = linesWithArtist1.mapToPair(new PairFunction<String,String,String>() {
-			
-			@Override
-			public scala.Tuple2<String,String> call(String s) {
-				return new scala.Tuple2<String,String>(artist1,s.substring(47, s.indexOf(" ", 48))) ;
-			}
-				
-		});
-		
-
+		JavaPairRDD<String,String> pairs1 = linesWithArtist1.mapToPair(new CreateTuple(artist1));
+		JavaPairRDD<String,String> pairs2 = linesWithArtist2.mapToPair(new CreateTuple(artist2));
+		JavaPairRDD<String,String> pairs3 = linesWithArtist3.mapToPair(new CreateTuple(artist3));
 		
 		/* save output */		
 		
-		pairs.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		pairs1.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 	
 		context.stop();
 	}
