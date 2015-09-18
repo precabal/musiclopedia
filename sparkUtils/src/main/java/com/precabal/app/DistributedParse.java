@@ -36,13 +36,13 @@ public final class DistributedParse {
 		
 		/* read text file */
 		
-		JavaRDD<Text> lines = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
+		JavaRDD<Text> records = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
 		
 		
 		/* process each line to remove the linebreak */
 		
 		/*
-		JavaRDD<String> linesNoBreaks = lines.map(new Function<Text, String>() {
+		JavaRDD<String> linesNoBreaks = records.map(new Function<Text, String>() {
 		
 			@Override
 			public String call(Text input) {
@@ -52,12 +52,12 @@ public final class DistributedParse {
 		});
 		*/
 		
-		//System.out.print(linesNoBreaks.first());
+		System.out.print(linesNoBreaks.first());
 		
 		
 		/* save output */		
 		
-		lines.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		//records.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 	
 		context.stop();
 	}
