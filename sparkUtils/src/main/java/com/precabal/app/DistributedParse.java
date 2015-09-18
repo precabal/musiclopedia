@@ -41,7 +41,7 @@ public final class DistributedParse {
 			public CreateTuple(String target) { this.target = target; }
 			@Override
 			public scala.Tuple2<String,String> call(String s) {
-				return new scala.Tuple2<String,String>(target,s.substring(47, s.indexOf(" ", 48))) ;
+				return new scala.Tuple2<String,String>(s.substring(47, s.indexOf(" ", 48)),target) ;
 			}
 				
 		}
@@ -92,7 +92,7 @@ public final class DistributedParse {
 		
 		/* save output */		
 		
-		pairs1.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		pairs1.join(pairs2).join(pairs3).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 	
 		context.stop();
 	}
