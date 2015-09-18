@@ -41,16 +41,16 @@ public final class DistributedParse {
 		
 		/* process each line to remove the linebreak */
 		
-		/*
+		
 		JavaRDD<String> linesNoBreaks = records.map(new Function<Text, String>() {
 		
 			@Override
 			public String call(Text input) {
-				String output = input.toString().replace(System.lineSeparator(), " ");
+				String output = input.toString(); //.replace(System.lineSeparator(), " ");
 				return output;
 			}
 		});
-		*/
+		
 		
 		System.out.print(records.first());
 		
