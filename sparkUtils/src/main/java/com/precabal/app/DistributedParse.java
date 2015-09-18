@@ -57,7 +57,7 @@ public final class DistributedParse {
 		
 		/* save output */		
 		
-		linesNoBreaks.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		lines.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 	
 		context.stop();
 	}
