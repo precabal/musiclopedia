@@ -50,7 +50,7 @@ public final class DistributedParse {
 			}
 		});
 		
-		final String test = "Following clues";
+		final String test = "Miley Cyrus";
 
 		JavaRDD<String> filteredLines = linesNoBreaks.filter(new Function<String, Boolean>() {
 			
