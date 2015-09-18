@@ -56,7 +56,7 @@ public final class DistributedParse {
 			@Override
 			public Boolean call(String s) {
 				if(s.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
-					if(s.matches("Miley Cyrus"))
+					if(s.matches("Following clues"))
 						return true;
 				}
 
