@@ -50,13 +50,14 @@ public final class DistributedParse {
 			}
 		});
 		
+		String test = "Following clues";
 
 		JavaRDD<String> filteredLines = linesNoBreaks.filter(new Function<String, Boolean>() {
 			
 			@Override
 			public Boolean call(String s) {
 				if(s.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
-					if(s.matches("Following clues"))
+					if( s.toLowerCase().contains(test) )
 						return true;
 				}
 
