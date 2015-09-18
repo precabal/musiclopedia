@@ -81,7 +81,7 @@ public final class DistributedParse {
 		
 		String artist1 = "Madonna";
 		String artist2 = "Miley Cyrus";
-		String artist3 = "Rage Against The Machine";
+		String artist3 = "britney spears";
 		
 		//linesNoBreaks.persist(StorageLevel.MEMORY_ONLY());
 		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new LookForString(artist1));
