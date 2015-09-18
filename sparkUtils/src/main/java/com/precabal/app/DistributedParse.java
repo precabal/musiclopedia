@@ -50,8 +50,8 @@ public final class DistributedParse {
 			}
 		});
 		
-		final String test = "Jeff Buckley";
-
+		final String test = "Miley Cyrus";
+		
 		JavaRDD<String> filteredLines = linesNoBreaks.filter(new Function<String, Boolean>() {
 			
 			@Override
@@ -65,11 +65,21 @@ public final class DistributedParse {
 			}
 				
 		});
+		
+		JavaPairRDD<String,String> pairs = filteredLines.mapToPair(new PairFunction<String,String,String>() {
+			
+			@Override
+			public scala.Tuple2<String,String> call(String s) {
+				return new scala.Tuple2<String,String>(test,s.substring(39, s.indexOf(" ", 39))) ;
+			}
+				
+		});
+		
 
 		
 		/* save output */		
 		
-		filteredLines.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		pairs.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 	
 		context.stop();
 	}
