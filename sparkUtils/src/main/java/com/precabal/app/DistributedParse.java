@@ -6,6 +6,7 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
 
 import org.apache.hadoop.conf.Configuration;
@@ -100,13 +101,20 @@ public final class DistributedParse {
 													)
 												);			
 		
-		pairs.mapToPair(new PairFunction<Tuple2<String, String>,Tuple2<String, String>,Integer>(){
+		JavaPairRDD<Tuple2<String, String>, Integer> modPairs = pairs.mapToPair(new PairFunction<Tuple2<String, String>,Tuple2<String, String>,Integer>(){
 			@Override
 			public Tuple2<Tuple2<String, String>, Integer> call(Tuple2<String, String> input) {
 				return new Tuple2<Tuple2<String, String>, Integer>(input, 1);
 			}
+		});
+		
+		modPairs.reduceByKey(new Function2<Integer,Integer,Integer>(){
+			@Override
+			public Integer call(Integer a, Integer b) {
+				return a+b;
+			}
 		}).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
-
+	
 		context.stop();
 	}
 }
