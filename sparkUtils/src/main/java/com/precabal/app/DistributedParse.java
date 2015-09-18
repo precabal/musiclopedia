@@ -46,8 +46,7 @@ public final class DistributedParse {
 		
 			@Override
 			public String call(Text input) {
-				String output = input.toString().replaceAll("\\r?\\n", " ");
-				return output;
+				return input.toString().replaceAll("\\r?\\n", " ");
 			}
 		});
 		
