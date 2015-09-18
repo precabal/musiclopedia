@@ -72,7 +72,7 @@ public final class DistributedParse {
 		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new FindString(artist1));
 		
 		
-		JavaPairRDD<String,String> pairs = filteredLines.mapToPair(new PairFunction<String,String,String>() {
+		JavaPairRDD<String,String> pairs = linesWithArtist1.mapToPair(new PairFunction<String,String,String>() {
 			
 			@Override
 			public scala.Tuple2<String,String> call(String s) {
