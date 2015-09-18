@@ -76,7 +76,7 @@ public final class DistributedParse {
 			
 			@Override
 			public scala.Tuple2<String,String> call(String s) {
-				return new scala.Tuple2<String,String>(test,s.substring(47, s.indexOf(" ", 48))) ;
+				return new scala.Tuple2<String,String>(artist1,s.substring(47, s.indexOf(" ", 48))) ;
 			}
 				
 		});
