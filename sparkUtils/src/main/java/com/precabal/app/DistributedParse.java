@@ -47,7 +47,7 @@ public final class DistributedParse {
 		
 			@Override
 			public String call(Text input) {
-				return input.toString().replaceAll("\\r?\\n", " ");
+				return input; //.toString().replaceAll("\\r?\\n", " ");
 			}
 		});
 		
@@ -71,7 +71,7 @@ public final class DistributedParse {
 			
 			@Override
 			public scala.Tuple2<String,String> call(String s) {
-				return new scala.Tuple2<String,String>(test,s.substring(46, s.indexOf(" ", 47))) ;
+				return new scala.Tuple2<String,String>(test,s.substring(47, s.indexOf(" ", 48))) ;
 			}
 				
 		});
