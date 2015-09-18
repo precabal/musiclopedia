@@ -46,7 +46,7 @@ public final class DistributedParse {
 		
 			@Override
 			public String call(Text input) {
-				String output = input.toString(); //.replace(System.lineSeparator(), " ");
+				String output = input.toString().replaceAll("\\r?\\n", " ");
 				return output;
 			}
 		});
