@@ -28,7 +28,7 @@ public final class DistributedParse {
 		
 		/* setup TODO: mod this to include subsequent registers */    	
     	Configuration conf = new Configuration();
-    	conf.set("textinputformat.record.delimiter", "WARC/1.0"+System.lineSeparator());
+    	conf.set("textinputformat.record.delimiter", "WARC/1.0");
 
     	SparkConf sparkConf = new SparkConf().setAppName("JavaSearchForExpression");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);		
@@ -51,12 +51,19 @@ public final class DistributedParse {
 		});
 		
 		
-		//System.out.print(linesNoBreaks.first());
-		
+		JavaRDD<String> filteredLines = linesNoBreaks.filter(new Function<String, Boolean>() {
+			
+			@Override
+			public Boolean call(String s) {
+				return s.startsWith(" WARC-Type: conversion WARC-Target-URI", 0);
+			}
+				
+		});
+
 		
 		/* save output */		
 		
-		linesNoBreaks.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		filteredLines.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 	
 		context.stop();
 	}
