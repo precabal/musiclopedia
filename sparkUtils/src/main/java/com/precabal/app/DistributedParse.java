@@ -13,6 +13,8 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
+import scala.Tuple2;
+
 import java.util.regex.Pattern;
 
 public final class DistributedParse {
@@ -92,8 +94,15 @@ public final class DistributedParse {
 		
 		/* save output */		
 		
-		pairs1.join(pairs2).values().saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
-	
+		JavaRDD<Tuple2<String,String>> pairs = 	pairs1.join(pairs2).values().union( 
+													pairs2.join(pairs3).values().union(
+															pairs1.join(pairs3).values()
+													)
+												);			
+		
+		
+		pairs.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+
 		context.stop();
 	}
 }
