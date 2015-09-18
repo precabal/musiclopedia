@@ -27,9 +27,13 @@ public final class DistributedParse {
     	}
 		
 		/* setup TODO: mod this to include subsequent registers */    	
-    	
+    	String newLine = System.lineSeparator();
     	Configuration conf = new Configuration();
-    	conf.set("textinputformat.record.delimiter", "WARC/1.0"+System.lineSeparator());
+    	conf.set("textinputformat.record.delimiter", 
+    		"WARC/1.0"+newLine
+    		+"WARC-Type: conversion"+newLine
+			+"WARC-Target-URI:"+newLine );
+
     	SparkConf sparkConf = new SparkConf().setAppName("JavaSearchForExpression");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);		
 		
