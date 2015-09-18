@@ -52,7 +52,7 @@ public final class DistributedParse {
 		});
 		*/
 		
-		System.out.print(linesNoBreaks.first());
+		System.out.print(records.first());
 		
 		
 		/* save output */		
