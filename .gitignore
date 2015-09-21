@@ -1,3 +1,4 @@
+## Java development metadata ##
 *.class
 
 # Mobile Tools for Java (J2ME) #
@@ -22,7 +23,7 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 
-# Eclipse metadata # 
+## Eclipse metadata ## 
 .metadata
 .gradle
 bin/
@@ -43,3 +44,21 @@ local.properties
 
 # JDT-specific (Eclipse Java Development Tools) #
 .classpath
+
+## General Key Safety ##
+*.cer
+*.cert
+*.crt
+*.csr
+*.der
+*.key
+*.p12
+*.p7b
+*.pem
+*.pfx
+*.pkcs12
+*.ppk
+*_dsa
+*_ecdsa
+*_ed25519
+*_rsa
