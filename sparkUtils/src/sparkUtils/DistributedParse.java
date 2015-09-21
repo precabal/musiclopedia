@@ -1,5 +1,5 @@
 
-package com.precabal.app;
+package sparkUtils;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -8,6 +8,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
+import org.apache.spark.broadcast.Broadcast;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
@@ -16,6 +17,8 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
 import scala.Tuple2;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public final class DistributedParse {
@@ -38,13 +41,26 @@ public final class DistributedParse {
 				return false;
 			}
 		}
+		class LookForTwoOrMoreStrings implements Function<JavaRDD<String>, Boolean> {
+			
+			@Override
+			public Boolean call(JavaRDD<String> s) {
+				/*
+				if(s.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
+					if( s.toLowerCase().contains(target.toLowerCase()) )
+						return true;
+				}
+				*/
+				return false;
+			}
+		}
 		
 		class CreateTuple implements PairFunction<String,String,String> {
 			private String target;
 			public CreateTuple(String target) { this.target = target; }
 			@Override
 			public scala.Tuple2<String,String> call(String s) {
-				return new scala.Tuple2<String,String>(s.substring(47, s.indexOf(" ", 48)),target) ;
+				return new scala.Tuple2<String,String>(target,s.substring(47, s.indexOf(" ", 48))) ;
 			}
 				
 		}
@@ -80,11 +96,27 @@ public final class DistributedParse {
 			}
 		});
 		
+		int numberOfArtists = 3;
+		
+		ArrayList<String> artistsNonRDD = new ArrayList<String>();
+		artistsNonRDD.add("Madonna");
+		artistsNonRDD.add("Miley Cyrus"); 
+		artistsNonRDD.add("Brittney Spears");
+		
+		JavaRDD<String> artists= context.parallelize(artistsNonRDD);
+		
+		Broadcast<JavaRDD<String>> artistsMap = context.broadcast(artists);
+		
 		String artist1 = "Madonna";
 		String artist2 = "Miley Cyrus";
-		String artist3 = "britney spears";
+		String artist3 = "Rage Against The Machine";
+		
+		//artistsMap.getValue().
+		
 		
 		//linesNoBreaks.persist(StorageLevel.MEMORY_ONLY());
+		
+		
 		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new LookForString(artist1));
 		JavaRDD<String> linesWithArtist2 = linesNoBreaks.filter(new LookForString(artist2));
 		JavaRDD<String> linesWithArtist3 = linesNoBreaks.filter(new LookForString(artist3));
@@ -93,7 +125,7 @@ public final class DistributedParse {
 		JavaPairRDD<String,String> pairs2 = linesWithArtist2.mapToPair(new CreateTuple(artist2));
 		JavaPairRDD<String,String> pairs3 = linesWithArtist3.mapToPair(new CreateTuple(artist3));
 		
-		/* save output */		
+		/* go through all possible cases and print*/		
 		
 		JavaRDD<Tuple2<String,String>> pairs = 	pairs1.join(pairs2).values().union( 
 													pairs2.join(pairs3).values().union(

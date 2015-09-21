@@ -1,6 +1,6 @@
 *.class
 
-# Mobile Tools for Java (J2ME)
+# Mobile Tools for Java (J2ME) #
 .mtj.tmp/
 
 # Package Files #
@@ -8,10 +8,10 @@
 *.war
 *.ear
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml #
 hs_err_pid*
 
-# Maven files
+# Maven files #
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -22,3 +22,24 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 
+# Eclipse metadata # 
+.metadata
+.gradle
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+
+# Eclipse Core #
+.project
+
+# Locally stored "Eclipse launch configurations" #
+*.launch
+
+# JDT-specific (Eclipse Java Development Tools) #
+.classpath
