@@ -83,6 +83,16 @@ public final class DistributedParse {
 			}
 		});
 		
+		int numberOfArtists = 3;
+		
+		ArrayList<String> artistsNonRDD = new ArrayList<String>();
+		artistsNonRDD.add("Madonna");
+		artistsNonRDD.add("Miley Cyrus"); 
+		artistsNonRDD.add("Brittney Spears");
+		
+		JavaRDD<String> artists= context.parallelize(artistsNonRDD);
+		
+		
 		String artist1 = "Madonna";
 		String artist2 = "Miley Cyrus";
 		String artist3 = "Rage Against The Machine";
