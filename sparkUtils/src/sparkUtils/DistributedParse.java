@@ -8,15 +8,12 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
 import scala.Tuple2;
-
-import java.util.ArrayList;
 
 public final class DistributedParse {
 
@@ -44,7 +41,7 @@ public final class DistributedParse {
 			public CreateTuple(String target) { this.target = target; }
 			@Override
 			public scala.Tuple2<String,String> call(String s) {
-				return new scala.Tuple2<String,String>(target,s.substring(47, s.indexOf(" ", 48))) ;
+				return new scala.Tuple2<String,String>(s.substring(47, s.indexOf(" ", 48)), target) ;
 			}
 				
 		}
@@ -83,7 +80,7 @@ public final class DistributedParse {
 		
 		String artist1 = "Madonna";
 		String artist2 = "Miley Cyrus";
-		String artist3 = "Rage Against The Machine";
+		String artist3 = "Britney Spears";
 		
 		
 		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new LookForString(artist1));
@@ -105,6 +102,7 @@ public final class DistributedParse {
 												);			
 		/* output = <Miley Cyrus, Madonna> */
 		
+		
 		JavaPairRDD<Tuple2<String, String>, Integer> modPairs = pairs.mapToPair(new PairFunction<Tuple2<String, String>,Tuple2<String, String>,Integer>(){
 			@Override
 			public Tuple2<Tuple2<String, String>, Integer> call(Tuple2<String, String> input) {
@@ -121,6 +119,7 @@ public final class DistributedParse {
 		}).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 		/* output = (<Miley Cyrus, Madonna>,14) */
 		
+		//Thread.sleep(4l * 60l * 1000l);
 		context.stop();
 	}
 }
