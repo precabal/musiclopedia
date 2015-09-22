@@ -1,6 +1,8 @@
 
 package sparkUtils;
 
+import java.util.Map;
+
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -102,6 +104,8 @@ public final class DistributedParse {
 												);			
 		/* output = <Miley Cyrus, Madonna> */
 		
+		Map<Tuple2<String,String>,Long> output = pairs.countByValue();
+		System.out.println(output.toString());
 		
 		JavaPairRDD<Tuple2<String, String>, Integer> modPairs = pairs.mapToPair(new PairFunction<Tuple2<String, String>,Tuple2<String, String>,Integer>(){
 			@Override
