@@ -8,7 +8,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
-import org.apache.spark.broadcast.Broadcast;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -17,12 +17,9 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import scala.Tuple2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.Pattern;
 
 public final class DistributedParse {
-	
-	private static final Pattern LINE_BREAK = Pattern.compile(System.lineSeparator());
+
 
 	@SuppressWarnings("serial")
 	public static void main(String[] args) throws Exception {
@@ -54,6 +51,7 @@ public final class DistributedParse {
 
 
 		/* error checking */
+		
     	if (args.length < 1) {
       		System.err.println("Usage: JavaWordCount <file>");
       		System.exit(1);
@@ -83,16 +81,6 @@ public final class DistributedParse {
 			}
 		});
 		
-		int numberOfArtists = 3;
-		
-		ArrayList<String> artistsNonRDD = new ArrayList<String>();
-		artistsNonRDD.add("Madonna");
-		artistsNonRDD.add("Miley Cyrus"); 
-		artistsNonRDD.add("Brittney Spears");
-		
-		JavaRDD<String> artists= context.parallelize(artistsNonRDD);
-		
-		
 		String artist1 = "Madonna";
 		String artist2 = "Miley Cyrus";
 		String artist3 = "Rage Against The Machine";
@@ -101,19 +89,21 @@ public final class DistributedParse {
 		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new LookForString(artist1));
 		JavaRDD<String> linesWithArtist2 = linesNoBreaks.filter(new LookForString(artist2));
 		JavaRDD<String> linesWithArtist3 = linesNoBreaks.filter(new LookForString(artist3));
+		/* output = <websites where Miley Cyrus is mentioned> */
 		
 		JavaPairRDD<String,String> pairs1 = linesWithArtist1.mapToPair(new CreateTuple(artist1));
 		JavaPairRDD<String,String> pairs2 = linesWithArtist2.mapToPair(new CreateTuple(artist2));
 		JavaPairRDD<String,String> pairs3 = linesWithArtist3.mapToPair(new CreateTuple(artist3));
+		/* output = <Miley Cyrus, website> */
 		
 		
-		/* go through all possible cases and print*/		
 		
 		JavaRDD<Tuple2<String,String>> pairs = 	pairs1.join(pairs2).values().union( 
 													pairs2.join(pairs3).values().union(
 															pairs1.join(pairs3).values()
 													)
 												);			
+		/* output = <Miley Cyrus, Madonna> */
 		
 		JavaPairRDD<Tuple2<String, String>, Integer> modPairs = pairs.mapToPair(new PairFunction<Tuple2<String, String>,Tuple2<String, String>,Integer>(){
 			@Override
@@ -121,6 +111,7 @@ public final class DistributedParse {
 				return new Tuple2<Tuple2<String, String>, Integer>(input, 1);
 			}
 		});
+		/* output = (<Miley Cyrus, Madonna>,1) */
 		
 		modPairs.reduceByKey(new Function2<Integer,Integer,Integer>(){
 			@Override
@@ -128,7 +119,8 @@ public final class DistributedParse {
 				return a+b;
 			}
 		}).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
-	
+		/* output = (<Miley Cyrus, Madonna>,14) */
+		
 		context.stop();
 	}
 }
