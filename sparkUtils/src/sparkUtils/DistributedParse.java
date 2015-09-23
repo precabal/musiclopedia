@@ -38,7 +38,8 @@ public final class DistributedParse {
     	
     	Configuration conf = new Configuration();
     	conf.set("textinputformat.record.delimiter", "WARC/1.0");
-
+    	conf.set("mapred.max.split.size", "10000000");
+    	
     	SparkConf sparkConf = new SparkConf().setAppName("JavaSearchForExpression");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);		
 		
@@ -47,10 +48,14 @@ public final class DistributedParse {
 		
 		JavaRDD<Text> multiLineRecords = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
 		
+		System.out.println("multiLine partitions: " + multiLineRecords.partitions().toString());
+		
 		JavaRDD<String> singleLineRecords = multiLineRecords.map(new Function<Text, String>() {
 			@Override
 			public String call(Text input) { return input.toString().replaceAll("\\r?\\n", " "); }
 		});
+		
+		System.out.println("singleLine partitions: " + singleLineRecords.partitions().toString());
 		
 		/* read artists text file */
 		
@@ -66,6 +71,7 @@ public final class DistributedParse {
 		
 		final Broadcast<ArrayList<String>> artists = context.broadcast(artistsImported);
 		
+		
 		//JavaPairRDD<String,String> artistsWebsites = 
 		singleLineRecords.flatMapToPair(new PairFlatMapFunction<String, String, String>() {
 			
@@ -80,7 +86,6 @@ public final class DistributedParse {
 							url_artistEdge.add(  new Tuple2<String,String>( record.substring(urlPosition, record.indexOf(" ", urlPosition+1)) , artist )  );
 					}
 				}
-				System.out.print(".");
 				return url_artistEdge;
 			}
 		}).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
