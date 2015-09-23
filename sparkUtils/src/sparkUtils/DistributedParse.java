@@ -21,57 +21,21 @@ import scala.Tuple2;
 
 public final class DistributedParse {
 
-
 	@SuppressWarnings("serial")
 	public static void main(String[] args) throws Exception {
-
-		class LookForString implements Function<String, Boolean> {
-			
-			private String target;
-			public LookForString(String target) { this.target = target; }
-			@Override
-			public Boolean call(String s) {
-				if(s.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
-					if( s.toLowerCase().contains(target.toLowerCase()) )
-						return true;
-				}
-
-				return false;
-			}
-		}
 		
 		final int addressIndex = 47;
-		class LookForStrings implements PairFlatMapFunction<String, String, String> {
-			
-			private ArrayList<String> artists;
-			public LookForStrings(ArrayList<String> artistsIn) { this.artists = artistsIn; }
-			@Override
-			public Iterable<scala.Tuple2<String,String>> call(final String record) {
-				
-				ArrayList<Tuple2<String,String>> output = new ArrayList<Tuple2<String,String>>();
-			
-				for(String artist: artists){
-					if(record.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
-						if( record.toLowerCase().contains(artist.toLowerCase()) )
-							output.add(  new Tuple2<String,String>( record.substring(addressIndex, record.indexOf(" ", addressIndex+1)) , artist )  );
-					}else{
-
-					}
-				}
-
-				return output;
-			}
-		}
 		
-		class CreateTuple implements PairFunction<String,String,String> {
-			private String target;
-			public CreateTuple(String target) { this.target = target; }
-			@Override
-			public scala.Tuple2<String,String> call(String s) {
-				return new scala.Tuple2<String,String>(s.substring(addressIndex, s.indexOf(" ", addressIndex+1)), target) ;
-			}
-				
-		}
+		String artist1 = "Madonna";
+		String artist2 = "Miley Cyrus";
+		String artist3 = "Britney Spears";
+		
+		ArrayList<String> artistsNP = new ArrayList<String>();
+		artistsNP.add(artist1);
+		artistsNP.add(artist2);
+		artistsNP.add(artist3);
+		
+		
 
 
 		/* error checking */
@@ -90,60 +54,64 @@ public final class DistributedParse {
 		JavaSparkContext context = new JavaSparkContext(sparkConf);		
 		
 		
+		
 		/* read text file */
 		
-		JavaRDD<Text> records = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
+		JavaRDD<Text> multiLineRecords = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
+		JavaRDD<String> artists = context.parallelize(artistsNP);
 		
+		/* process each line to remove the line breaks */
 		
-		/* process each line to remove the linebreak */
-		
-		JavaRDD<String> linesNoBreaks = records.map(new Function<Text, String>() {
+		JavaRDD<String> oneLineRecords = multiLineRecords.map(new Function<Text, String>() {
 		
 			@Override
 			public String call(Text input) {
 				return input.toString().replaceAll("\\r?\\n", " ");
 			}
 		});
+	
 		
-		String artist1 = "Madonna";
-		String artist2 = "Miley Cyrus";
-		String artist3 = "Britney Spears";
+		/* returns a dataset of all pairs */
 		
-		ArrayList<String> artistsNP = new ArrayList<String>();
-		artistsNP.add(artist1);
-		artistsNP.add(artist2);
-		artistsNP.add(artist3);
-		JavaRDD<String> artists = context.parallelize(artistsNP);
+		JavaPairRDD<String,String> recordsCrossArtists = oneLineRecords.cartesian(artists);
 		
-		final Broadcast<JavaRDD<String>> artistas = context.broadcast(artists);
+		JavaPairRDD<String,String> websiteArtistEdges = recordsCrossArtists.filter(new Function<Tuple2<String,String>,Boolean> (){
+			
+			@Override
+			public Boolean call(Tuple2<String,String> input){
+				
+				return (input._1.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)) && (input._1.toLowerCase().contains(input._2.toLowerCase()));
+			}
+			
+		}).mapToPair(new PairFunction<Tuple2<String,String>,String,String> (){
+			
+			@Override
+			public Tuple2<String,String> call(Tuple2<String,String> input){
+				
+				return new scala.Tuple2<String,String>(input._1.substring(addressIndex, input._1.indexOf(" ", addressIndex+1)), input._2) ;
+				
+			}
+			
+		});
 		
+		/*
+		JavaPairRDD<String,String> aristsPairsCount = toGraph.groupByKey().flatMapToPair(new PairFlatMapFunction<Tuple2<String,ArrayList<String>>,String,String>(){
+
+			@Override
+			public Iterable<Tuple2<String, String>> call(Tuple2<String, ArrayList<String>> inputList) {
+				
+				ArrayList<Tuple2<String,String>> output = new ArrayList<Tuple2<String,String>>();
+				
+				for(int i = 1; i<inputList._2.)
+				
+				
+				return output;
+			}
+			
+		});
+		*/
 		
-		//cartesian(otherDataset)	When called on datasets of types T and U, returns a dataset of (T, U) pairs (all pairs of elements).
-		//JavaPairRDD<String,String> mixedRDD = linesNoBreaks.cartesian(artists);
-		
-		JavaPairRDD<String,String> artistsWebsites = linesNoBreaks.flatMapToPair(new LookForStrings(artistas.value));
-		
-		JavaRDD<String> linesWithArtist1 = linesNoBreaks.filter(new LookForString(artist1));
-		JavaRDD<String> linesWithArtist2 = linesNoBreaks.filter(new LookForString(artist2));
-		JavaRDD<String> linesWithArtist3 = linesNoBreaks.filter(new LookForString(artist3));
-		/* output = <websites where Miley Cyrus is mentioned> */
-		
-		JavaPairRDD<String,String> pairs1 = linesWithArtist1.mapToPair(new CreateTuple(artist1));
-		JavaPairRDD<String,String> pairs2 = linesWithArtist2.mapToPair(new CreateTuple(artist2));
-		JavaPairRDD<String,String> pairs3 = linesWithArtist3.mapToPair(new CreateTuple(artist3));
-		/* output = <Miley Cyrus, website> */
-		
-		JavaRDD<Tuple2<String,String>> pairs = 	pairs1.join(pairs2).values().union( 
-													pairs2.join(pairs3).values().union(
-															pairs1.join(pairs3).values()
-													)
-												);			
-		/* output = <Miley Cyrus, Madonna> */
-		
-		Map<Tuple2<String,String>,Long> output = artistsWebsites.countByValue();
-		System.out.println(output.toString());
-		
-		//Thread.sleep(4l * 60l * 1000l);
+		websiteArtistEdges.saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
 		context.stop();
 	}
 }
