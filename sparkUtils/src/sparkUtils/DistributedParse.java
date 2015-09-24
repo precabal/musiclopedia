@@ -90,7 +90,7 @@ public final class DistributedParse {
 				ArrayList<Tuple2<String,String>> url_sentences = new ArrayList<Tuple2<String,String>>();
 			
 				while(tokenizer.hasMoreTokens()){
-					url_sentences.add(new Tuple2<String,String>(url,tokenizer.nextToken().toLowerCase()) );
+					url_sentences.add(new Tuple2<String,String>(url,tokenizer.nextToken()) );
 				}
 
 				return url_sentences;
@@ -105,7 +105,7 @@ public final class DistributedParse {
 				ArrayList<String> artistsFound = new ArrayList<String>();
 				
 				for(String artist: artists.value()){
-					if( arg0.contains(artist.toLowerCase()) )
+					if( arg0.contains(artist) )
 						artistsFound.add(artist);
 				}
 				return artistsFound;
