@@ -37,7 +37,8 @@ public final class DistributedParse {
     	
     	Configuration conf = new Configuration();
     	conf.set("textinputformat.record.delimiter", "WARC/1.0");
-    	conf.set("mapred.max.split.size", "10000000");
+    	conf.set("mapreduce.input.fileinputformat.split.maxsize", "1000000");
+
     	
     	SparkConf sparkConf = new SparkConf().setAppName("JavaSearchForExpression");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);		
@@ -47,8 +48,6 @@ public final class DistributedParse {
 		
 		JavaRDD<Text> multiLineRecords = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
 		
-		System.out.println("multiLine partitions: " + multiLineRecords.partitions().toString());
-		
 		JavaRDD<String> singleLineRecords = multiLineRecords.map(new Function<Text, String>() {
 			@Override
 			public String call(Text input) { return input.toString().replaceAll("\\r?\\n", " "); }
@@ -56,12 +55,13 @@ public final class DistributedParse {
 	
 		
 		
-		System.out.println("singleLine partitions: " + singleLineRecords.partitions().toString());
-		
+		//System.out.println("singleLine partitions: " + singleLineRecords.partitions().size());
+		//System.out.println("el archivo es: " + args[1]);
 		/* read artists text file */
 		
 		ArrayList<String> artistsImported = new ArrayList<String>();
-		BufferedReader inputReader = new BufferedReader(new FileReader("./strippedArtists.txt"));
+		
+		BufferedReader inputReader = new BufferedReader(new FileReader(args[1]));
 		
 		String line = inputReader.readLine();
 		while(line!=null){
@@ -73,12 +73,13 @@ public final class DistributedParse {
 		final Broadcast<ArrayList<String>> artists = context.broadcast(artistsImported);
 		
 		
+		
 		//JavaPairRDD<String,String> artistsWebsites = 
 		singleLineRecords.flatMapToPair(new PairFlatMapFunction<String, String, String>() {
 			
 			@Override
 			public Iterable<scala.Tuple2<String,String>> call(String record) {
-				
+
 				ArrayList<Tuple2<String,String>> url_artistEdge = new ArrayList<Tuple2<String,String>>();
 				
 				if(record.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
