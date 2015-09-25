@@ -4,12 +4,17 @@ package sparkUtils;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
+import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.hadoop.conf.Configuration;
@@ -28,8 +33,8 @@ public final class DistributedParse {
 
 		/* error checking */
 		
-    	if (args.length < 1) {
-      		System.err.println("Usage: JavaWordCount <file>");
+    	if (args.length < 3) {
+      		System.err.println("Usage: DistributedParse <inputWetFile> <inputKeys> <outputFolder>");
       		System.exit(1);
     	}
 		
@@ -41,22 +46,10 @@ public final class DistributedParse {
 
     	
     	SparkConf sparkConf = new SparkConf().setAppName("JavaSearchForExpression");
-		JavaSparkContext context = new JavaSparkContext(sparkConf);		
+		sparkConf.set("spark.storage.memoryFraction", "0.1");
 		
+    	JavaSparkContext context = new JavaSparkContext(sparkConf);		
 		
-		/* #### read & parse web text file #### */
-		
-		JavaRDD<Text> multiLineRecords = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
-		
-		JavaRDD<String> singleLineRecords = multiLineRecords.map(new Function<Text, String>() {
-			@Override
-			public String call(Text input) { return input.toString().replaceAll("\\r?\\n", " "); }
-		});
-	
-		
-		
-		//System.out.println("singleLine partitions: " + singleLineRecords.partitions().size());
-		//System.out.println("el archivo es: " + args[1]);
 		/* read artists text file */
 		
 		ArrayList<String> artistsImported = new ArrayList<String>();
@@ -73,25 +66,61 @@ public final class DistributedParse {
 		final Broadcast<ArrayList<String>> artists = context.broadcast(artistsImported);
 		
 		
+		/* #### read & parse web text file #### */
 		
-		//JavaPairRDD<String,String> artistsWebsites = 
-		singleLineRecords.flatMapToPair(new PairFlatMapFunction<String, String, String>() {
-			
+		JavaRDD<Text> multiLineRecords = context.newAPIHadoopFile(args[0], TextInputFormat.class, LongWritable.class, Text.class, conf).values();
+		
+		JavaRDD<String> singleLineRecords = multiLineRecords.map(new Function<Text, String>() {
 			@Override
-			public Iterable<scala.Tuple2<String,String>> call(String record) {
-
-				ArrayList<Tuple2<String,String>> url_artistEdge = new ArrayList<Tuple2<String,String>>();
-				
-				if(record.startsWith(" WARC-Type: conversion WARC-Target-URI", 0)){
-					for(String artist: artists.value()){
-						if( record.toLowerCase().contains(artist.toLowerCase()) )
-							url_artistEdge.add(  new Tuple2<String,String>( record.substring(urlPosition, record.indexOf(" ", urlPosition+1)) , artist )  );
-					}
-				}
-				return url_artistEdge;
-			}
-		}).saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+			public String call(Text input) { return input.toString().replaceAll("\\r?\\n", " "); }
+		}).filter(new Function<String,Boolean> (){
+			@Override
+			public Boolean call(String record) { return record.startsWith(" WARC-Type: conversion WARC-Target-URI", 0); }
+		});
 		
+		
+		
+		JavaPairRDD<String,String> url_sublines = singleLineRecords.flatMapToPair(new PairFlatMapFunction<String,String,String>(){
+
+			@Override
+			public Iterable<Tuple2<String, String>> call(String record) {	
+				int urlEndPosition = record.indexOf(" ", urlPosition+1);
+				String url = record.substring(urlPosition, urlEndPosition);
+				
+				StringTokenizer tokenizer = new StringTokenizer( record.substring(urlEndPosition), ".,#()[]$%*+,-.:;<=>?@[]^_`{|}~" ) ;
+				
+				ArrayList<Tuple2<String,String>> url_sentences = new ArrayList<Tuple2<String,String>>();
+			
+				while(tokenizer.hasMoreTokens()){
+					url_sentences.add(new Tuple2<String,String>(url,tokenizer.nextToken()) );
+				}
+
+				return url_sentences;
+			}
+		
+		});
+		
+		url_sublines.flatMapValues(new Function<String,Iterable<String>> (){
+
+			@Override
+			public Iterable<String> call(String arg0) {
+				ArrayList<String> artistsFound = new ArrayList<String>();
+				
+				for(String artist: artists.value()){
+					if( arg0.contains(artist) )
+						artistsFound.add(artist);
+				}
+				return artistsFound;
+			}	
+		}).distinct().map(new Function<Tuple2<String,String>,String>(){
+
+			@Override
+			public String call(Tuple2<String, String> records){
+				
+				return String.format("%s,%s",records._1,records._2);
+			}
+			
+		}).saveAsTextFile(args[2]);
 		
 
 		context.stop();
