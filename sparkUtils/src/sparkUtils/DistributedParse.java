@@ -33,8 +33,8 @@ public final class DistributedParse {
 
 		/* error checking */
 		
-    	if (args.length < 1) {
-      		System.err.println("Usage: JavaWordCount <file>");
+    	if (args.length < 3) {
+      		System.err.println("Usage: DistributedParse <inputWetFile> <inputKeys> <outputFolder>");
       		System.exit(1);
     	}
 		
@@ -46,7 +46,9 @@ public final class DistributedParse {
 
     	
     	SparkConf sparkConf = new SparkConf().setAppName("JavaSearchForExpression");
-		JavaSparkContext context = new JavaSparkContext(sparkConf);		
+		sparkConf.set("spark.storage.memoryFraction", "0.1");
+		
+    	JavaSparkContext context = new JavaSparkContext(sparkConf);		
 		
 		/* read artists text file */
 		
@@ -110,7 +112,15 @@ public final class DistributedParse {
 				}
 				return artistsFound;
 			}	
-		}).distinct().saveAsTextFile("hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/user/outputText");
+		}).distinct().map(new Function<Tuple2<String,String>,String>(){
+
+			@Override
+			public String call(Tuple2<String, String> records){
+				
+				return String.format("%s,%s",records._1,records._2);
+			}
+			
+		}).saveAsTextFile(args[2]);
 		
 
 		context.stop();
