@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,13 +44,12 @@ public class DB_Manager {
 		
 		try{
 			Map<String,Vertex> vertexMap = loadVertices(keys);
-			System.out.println("done vertex");
+			//System.out.println("done vertex");
 			insertEdges(edges,vertexMap);
 			
 			graph.commit();
 			
 		} catch( Exception e ) {
-			System.out.println("caught an exeption");
 			e.printStackTrace();
 			graph.rollback();
 
@@ -60,14 +60,17 @@ public class DB_Manager {
 		
     }
 	
+	
 	private Map<String,Vertex> loadVertices(String inputFile) throws IOException {
 		
 		Map<String,Vertex> vertexMap = new HashMap<String,Vertex>();
         
-		System.out.println("im vertex");
+		//System.out.println("im vertex");
+		
 		BufferedReader inputReader = new BufferedReader(new FileReader(inputFile));	
+		
 		String line = inputReader.readLine();
-		System.out.println(line);
+		//System.out.println(line);
 		while(line!=null){
 			
 			Vertex vertex = graph.addVertex("class:artist");
@@ -75,6 +78,7 @@ public class DB_Manager {
 			vertexMap.put(line, vertex);
 			
 			line = inputReader.readLine();
+			
 		}
 		inputReader.close();
 		
@@ -82,25 +86,35 @@ public class DB_Manager {
 		
     }
 	
-    private void insertEdges(String inputFile, Map<String, Vertex> vertexMap) throws IOException {
+    private void insertEdges(String inputDirectory, Map<String, Vertex> vertexMap) throws IOException {
  
-    	BufferedReader inputReader = new BufferedReader(new FileReader(inputFile));	
-		String line = inputReader.readLine();
-		while(line!=null){
-			String url = line.split(",")[0];
-			
-			
-			Vertex urlVertex = graph.addVertex("class:url");
-			urlVertex.setProperty("name", url);
-			
-			String artist = line.split(",")[1];
-			System.out.println(artist);
-			/* consider using graph.getVertexByKey("name", artist) isntead */
-			graph.addEdge(null,urlVertex, vertexMap.get(artist), "contains");
-			
-			line = inputReader.readLine();
-		}
-		inputReader.close();
+
+		File[] files = new File(inputDirectory).listFiles();
+	    for (File file : files) {
+	        if (!file.isDirectory()) {
+	        	String path = inputDirectory.concat("/").concat(file.getName());
+	        	System.out.println(path);
+	        	BufferedReader inputReader = new BufferedReader(new FileReader(path));	
+	    		String line = inputReader.readLine();
+	    		while(line!=null){
+	    			String url = line.split(",")[0];
+	    			
+	    			
+	    			Vertex urlVertex = graph.addVertex("class:url");
+	    			urlVertex.setProperty("name", url);
+	    			
+	    			String artist = line.split(",")[1];
+	    			System.out.println(artist);
+	    			Vertex artistVertex = vertexMap.get(artist);
+	    			if(artistVertex!=null)
+	    				graph.addEdge(null,urlVertex, artistVertex, "contains");
+	    			
+	    			line = inputReader.readLine();
+	    		}
+	    		inputReader.close();
+	        }
+	    }
+
 
     }
  
