@@ -63,7 +63,7 @@ public class DB_Manager {
 	
 	private Map<String,Vertex> loadVertices(String inputFile) throws IOException {
 		
-		Map<String,Vertex> vertexMap = new HashMap<String,Vertex>();
+		Map<String,Vertex> artistVertexMap = new HashMap<String,Vertex>();
         
 		//System.out.println("im vertex");
 		
@@ -75,20 +75,22 @@ public class DB_Manager {
 			
 			Vertex vertex = graph.addVertex("class:artist");
 			vertex.setProperty("name", line);
-			vertexMap.put(line, vertex);
+			artistVertexMap.put(line, vertex);
 			
 			line = inputReader.readLine();
 			
 		}
 		inputReader.close();
 		
-		return vertexMap;
+		return artistVertexMap;
 		
     }
 	
     private void insertEdges(String inputDirectory, Map<String, Vertex> vertexMap) throws IOException {
  
 
+    	Map<String,Vertex> urlVertexMap = new HashMap<String,Vertex>();
+    	
 		File[] files = new File(inputDirectory).listFiles();
 	    for (File file : files) {
 	        if (!file.isDirectory()) {
@@ -99,12 +101,15 @@ public class DB_Manager {
 	    		while(line!=null){
 	    			String url = line.split(",")[0];
 	    			
-	    			
-	    			Vertex urlVertex = graph.addVertex("class:url");
-	    			urlVertex.setProperty("name", url);
+	    			Vertex urlVertex = urlVertexMap.get(url);
+	    			if(urlVertex==null){
+	    				urlVertex = graph.addVertex("class:url");
+	    				urlVertex.setProperty("name", url);
+	    				urlVertexMap.put(url, urlVertex);
+	    			}
 	    			
 	    			String artist = line.split(",")[1];
-	    			System.out.println(artist);
+	    			//System.out.println(artist);
 	    			Vertex artistVertex = vertexMap.get(artist);
 	    			if(artistVertex!=null)
 	    				graph.addEdge(null,urlVertex, artistVertex, "contains");
