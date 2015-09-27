@@ -1,5 +1,5 @@
 #!/bin/bash
-COUNTER=50
+COUNTER=500
 ITERATIONS=$(($1+$COUNTER))
 
 #set up paths
@@ -8,7 +8,7 @@ DATA_FLDR='data'
 FILE_PATHS=$DATA_FLDR'/wet.paths'
 PREFIX='https://aws-publicdatasets.s3.amazonaws.com/'
 OUTPUT_FOLDER_PREFIX=$HOST_DNS'user/data/output_'
-HDFS_FOLDER='/user/'$DATA_FLRD'/inputText/'
+HDFS_FOLDER='/user/'$DATA_FLDR'/inputText/'
 
 
 #hdfs dfs -rm -r /user/data/output_*
@@ -21,6 +21,7 @@ while [  $COUNTER -lt $ITERATIONS ]; do
      CURRENT_FILE_PATH=$(sed ''$COUNTER'q;d' $FILE_PATHS)
      echo '##### current file  = '$PREFIX$CURRENT_FILE
      echo '##### output folder = '$OUTPUT_FOLDER_PREFIX$COUNTER
+
 	 #downloads the current file to a temp directory
 	 wget $PREFIX$CURRENT_FILE_PATH -O $DATA_FLDR'/tmp/'$CURRENT_FILE
 	 gunzip $DATA_FLDR'/tmp/'$CURRENT_FILE 
@@ -38,6 +39,7 @@ while [  $COUNTER -lt $ITERATIONS ]; do
 	 $HOST_DNS$HDFS_FOLDER$CURRENT_FILE_UNZIPPED \
 	 data/jazzMusicians.txt \
 	 $OUTPUT_FOLDER_PREFIX$COUNTER
+	 
 	 #3. delete the downloaded file form local and remote
 	 rm -rf $DATA_FLDR'/tmp/'$CURRENT_FILE_UNZIPPED
 	 hdfs dfs -rm /user/data/inputText/$CURRENT_FILE_UNZIPPED
