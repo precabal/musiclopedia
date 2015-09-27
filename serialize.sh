@@ -1,14 +1,17 @@
-#/bin/bash
+#!/bin/bash
+COUNTER=50
+ITERATIONS=$(($1+$COUNTER))
+
+#set up paths
 HOST_DNS='hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/'
-ITERATIONS=$1
 DATA_FLDR='data'
 FILE_PATHS=$DATA_FLDR'/wet.paths'
 PREFIX='https://aws-publicdatasets.s3.amazonaws.com/'
-COUNTER=0
 OUTPUT_FOLDER_PREFIX=$HOST_DNS'user/data/output_'
-HDFS_FOLDER='/user/data/inputText/'
+HDFS_FOLDER='/user/'$DATA_FLRD'/inputText/'
 
-hdfs dfs -rm -r /user/data/output_*
+
+#hdfs dfs -rm -r /user/data/output_*
 while [  $COUNTER -lt $ITERATIONS ]; do
      
      let COUNTER=COUNTER+1 
@@ -19,14 +22,9 @@ while [  $COUNTER -lt $ITERATIONS ]; do
      echo '##### current file  = '$PREFIX$CURRENT_FILE
      echo '##### output folder = '$OUTPUT_FOLDER_PREFIX$COUNTER
 	 #downloads the current file to a temp directory
-	 
-	 #echo '##### wget' $PREFIX$CURRENT_FILE_PATH
 	 wget $PREFIX$CURRENT_FILE_PATH -O $DATA_FLDR'/tmp/'$CURRENT_FILE
-	 gunzip -f $DATA_FLDR'/tmp/'$CURRENT_FILE 
-
+	 gunzip $DATA_FLDR'/tmp/'$CURRENT_FILE 
 	 CURRENT_FILE_UNZIPPED=${CURRENT_FILE::-3}
-	 echo '##### this is '$CURRENT_FILE_UNZIPPED
-
 
 	 #moves to HDFS
 	 hdfs dfs -moveFromLocal $DATA_FLDR'/tmp/'$CURRENT_FILE_UNZIPPED $HDFS_FOLDER
