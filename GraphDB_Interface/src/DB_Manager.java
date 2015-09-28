@@ -26,7 +26,8 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 
 public class DB_Manager {
 	
-	OrientGraph graph;
+	private OrientGraph graph;
+	private OrientGraphFactory factory;
 	private Map<String,Vertex> vertexMap;
 	
 	public static void main(String[] args) {
@@ -37,30 +38,34 @@ public class DB_Manager {
     	}
     	String keysFilePath = args[0];
     	String edgesFilePath = args[1];
-    	String dbPath = args[2]; //"plocal:/home/ubuntu/project/releases/orientdb-community-2.1.2/databases/db"
+    	String dbPath = args[2];
     	
     	DB_Manager manager = new DB_Manager();
     	
-    	manager.loadVerticesAndEdges(keysFilePath, edgesFilePath, dbPath);
+    	manager.loadDatabase(dbPath);
+    	manager.createClasses();
+    	manager.loadVerticesAndEdges(keysFilePath, edgesFilePath);
     	
 		
-    	
 	}
-
-	public void loadVerticesAndEdges(String keys, String edges, String databasePath) {
-		
-		OrientGraphFactory factory = new OrientGraphFactory(databasePath);
+	public void loadDatabase(String databasePath){
+		factory = new OrientGraphFactory(databasePath);
 		graph = factory.getTx();
-		
+	}
+	public void createClasses(){
 		if(graph.getVertexType("url")==null)
 			graph.createVertexType("url");
 		if(graph.getVertexType("artist")==null)
 			graph.createVertexType("artist");
 		
+		
+	}
+
+	public void loadVerticesAndEdges(String keys, String edges) {
+		
 		try{
 			vertexMap = insertVertices(keys);
 			insertEdges(new Path(edges));
-			
 			graph.commit();
 			
 		} catch( Exception e ) {
