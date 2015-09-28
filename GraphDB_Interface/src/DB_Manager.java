@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -122,5 +123,39 @@ public class DB_Manager {
 
 
     }
+    public List<String> readLines(Path location, Configuration conf) throws Exception {
+        FileSystem fileSystem = FileSystem.get(location.toUri(), conf);
+        CompressionCodecFactory factory = new CompressionCodecFactory(conf);
+        FileStatus[] items = fileSystem.listStatus(location);
+        if (items == null) return new ArrayList<String>();
+        List<String> results = new ArrayList<String>();
+        for(FileStatus item: items) {
+
+          // ignoring files like _SUCCESS
+          if(item.getPath().getName().startsWith("_")) {
+            continue;
+          }
+
+          CompressionCodec codec = factory.getCodec(item.getPath());
+          InputStream stream = null;
+
+          // check if we have a compression codec we need to use
+          if (codec != null) {
+            stream = codec.createInputStream(fileSystem.open(item.getPath()));
+          }
+          else {
+            stream = fileSystem.open(item.getPath());
+          }
+
+          StringWriter writer = new StringWriter();
+          IOUtils.copy(stream, writer, "UTF-8");
+          String raw = writer.toString();
+          String[] resulting = raw.split("\n");
+          for(String str: raw.split("\n")) {
+            results.add(str);
+          }
+        }
+        return results;
+      }
  
 }
