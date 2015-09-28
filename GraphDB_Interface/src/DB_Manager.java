@@ -55,8 +55,7 @@ public class DB_Manager {
 			graph.createVertexType("artist");
 		
 		try{
-			Map<String,Vertex> vertexMap = loadVertices(keys);
-			//System.out.println("done vertex");
+			Map<String,Vertex> vertexMap = insertVertices(keys);
 			insertEdges(edges,vertexMap);
 			
 			graph.commit();
@@ -73,16 +72,14 @@ public class DB_Manager {
     }
 	
 	
-	private Map<String,Vertex> loadVertices(String inputFile) throws IOException {
+	private Map<String,Vertex> insertVertices(String inputFile) throws IOException {
 		
 		Map<String,Vertex> artistVertexMap = new HashMap<String,Vertex>();
-        
-		//System.out.println("im vertex");
 		
 		BufferedReader inputReader = new BufferedReader(new FileReader(inputFile));	
 		
 		String line = inputReader.readLine();
-		//System.out.println(line);
+		
 		while(line!=null){
 			
 			Vertex vertex = graph.addVertex("class:artist");
@@ -115,9 +112,9 @@ public class DB_Manager {
 				try {
 					results = readLines(location, new Configuration());
 
-					for(String linex : results){
+					for(String line : results){
 
-						String url = linex.split(",")[0];
+						String url = line.split(",")[0];
 
 						Vertex urlVertex = urlVertexMap.get(url);
 						if(urlVertex==null){
@@ -126,7 +123,7 @@ public class DB_Manager {
 							urlVertexMap.put(url, urlVertex);
 						}
 
-						String artist = linex.split(",")[1];
+						String artist = line.split(",")[1];
 
 						Vertex artistVertex = vertexMap.get(artist);
 						if(artistVertex!=null)
