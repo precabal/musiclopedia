@@ -2,9 +2,20 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
 
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.tinkerpop.blueprints.Vertex;
@@ -87,37 +98,49 @@ public class DB_Manager {
 		
     }
 	
-    private void insertEdges(String inputDirectory, Map<String, Vertex> vertexMap) throws IOException {
+    private void insertEdges(String inputDirectory, Map<String, Vertex> vertexMap) {
  
 
     	Map<String,Vertex> urlVertexMap = new HashMap<String,Vertex>();
     	
 		File[] files = new File(inputDirectory).listFiles();
+		
+		
+		
 	    for (File file : files) {
 	        if (!file.isDirectory()) {
 	        	String path = inputDirectory.concat("/").concat(file.getName());
-	        	System.out.println(path);
-	        	BufferedReader inputReader = new BufferedReader(new FileReader(path));	
-	    		String line = inputReader.readLine();
-	    		while(line!=null){
-	    			String url = line.split(",")[0];
-	    			
-	    			Vertex urlVertex = urlVertexMap.get(url);
-	    			if(urlVertex==null){
-	    				urlVertex = graph.addVertex("class:url");
-	    				urlVertex.setProperty("name", url);
-	    				urlVertexMap.put(url, urlVertex);
-	    			}
-	    			
-	    			String artist = line.split(",")[1];
-	    			//System.out.println(artist);
-	    			Vertex artistVertex = vertexMap.get(artist);
-	    			if(artistVertex!=null)
-	    				graph.addEdge(null,urlVertex, artistVertex, "contains");
-	    			
-	    			line = inputReader.readLine();
-	    		}
-	    		inputReader.close();
+	    
+	        	Path location = new Path(path);
+	        	
+	        	List<String> results;
+				try {
+					results = readLines(location, new Configuration());
+
+					for(String linex : results){
+
+						String url = linex.split(",")[0];
+
+						Vertex urlVertex = urlVertexMap.get(url)
+						if(urlVertex==null){
+							urlVertex = graph.addVertex("class:url");
+							urlVertex.setProperty("name", url);
+							urlVertexMap.put(url, urlVertex);
+						}
+
+						String artist = linex.split(",")[1];
+
+						Vertex artistVertex = vertexMap.get(artist);
+						if(artistVertex!=null)
+							graph.addEdge(null,urlVertex, artistVertex, "contains");
+
+
+					}
+				} catch (Exception e) {
+					System.out.println("Can't load file : " + path);
+					e.printStackTrace();
+				}
+	    		
 	        }
 	    }
 
