@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionCodecFactory;
 
@@ -105,8 +105,6 @@ public class DB_Manager {
     	
 		File[] files = new File(inputDirectory).listFiles();
 		
-		
-		
 	    for (File file : files) {
 	        if (!file.isDirectory()) {
 	        	String path = inputDirectory.concat("/").concat(file.getName());
@@ -121,7 +119,7 @@ public class DB_Manager {
 
 						String url = linex.split(",")[0];
 
-						Vertex urlVertex = urlVertexMap.get(url)
+						Vertex urlVertex = urlVertexMap.get(url);
 						if(urlVertex==null){
 							urlVertex = graph.addVertex("class:url");
 							urlVertex.setProperty("name", url);
