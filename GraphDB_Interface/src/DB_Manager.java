@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,19 +13,18 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.CompressionCodecFactory;
 
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 public class DB_Manager {
 	
-	private OrientGraph graph;
+	private OrientGraphNoTx graph;
 	private OrientGraphFactory factory;
 	private Map<String,Vertex> vertexMap;
 	
@@ -50,15 +48,31 @@ public class DB_Manager {
 	}
 	public void loadDatabase(String databasePath){
 		factory = new OrientGraphFactory(databasePath);
-		graph = factory.getTx();
+		graph = factory.getNoTx(); //.getTx();
+		
 	}
 	public void createClasses(){
-		if(graph.getVertexType("url")==null)
+		
+		
+		if(graph.getVertexType("url")==null){
+			
+		
 			graph.createVertexType("url");
+			String sql = "CREATE PROPERTY url.name string";
+			OCommandSQL createIndex = new OCommandSQL(sql);
+			graph.command(createIndex).execute(new Object[0]);
+			
+			sql = "create index url.name on url (name) unique";
+			createIndex = new OCommandSQL(sql);
+			Object done = graph.command(createIndex).execute(new Object[0]);
+			System.out.println(done.toString());
+			
+		}
 		if(graph.getVertexType("artist")==null)
 			graph.createVertexType("artist");
 		
 		
+
 	}
 
 	public void loadVerticesAndEdges(String keys, String edges) {
@@ -109,6 +123,7 @@ public class DB_Manager {
     	/* get all files and folders */
     	FileStatus[] items = fileSystem.listStatus(inputDirectory);
     	
+    	int directoryCount =0;
     	for(FileStatus item : items){
     		
             // ignoring files like _SUCCESS
@@ -117,15 +132,19 @@ public class DB_Manager {
             }
     		
     		if(item.isDirectory()){
+    			System.out.println(directoryCount++);
     			/* if file is a folder, call itself recursively */
     			insertEdges(item.getPath());
     		}else{
     	    	/* if it's a file, get the lines within it */
-    	    	List<String> lines = getLines("path", fileSystem);
+    	    	List<String> lines = getLines(item.getPath().toString(), fileSystem);
     			
     	    	/*and add them as vertices to the db */
-    	    	for(String line : lines)
-    	    		addLineToDB(line);    	    	
+    	    	for(String line : lines){
+    	   
+    	    		if(line.length()!=0)
+    	    			addLineToDB(line);   
+    	    	}
     		}
     	}
 
@@ -148,31 +167,40 @@ public class DB_Manager {
             results.add(str);
         }
     	
+        stream.close();
+        
     	return results;
     }
     
     private void addLineToDB(String line){
-
-    	String url = line.split(",")[0];
-    	String artist = line.split(",")[1];
+    	
+    	//array elements  = line.split(",").length
+    	int p = line.lastIndexOf(',');
+    	
+    	String url = line.substring(0,p); //split(",")[0];
+    	String artist = line.substring(p+1);
     	
     	Vertex urlVertex = null;
     	
-    	String query = "SELECT * FROM  " + "url" + " WHERE " + "name" + " = ?";
-    	List<ODocument> qResult = graph.command(new OCommandSQL(query)).execute(url);
+    	String query = "SELECT FROM INDEX:url.name WHERE key = ?";
     	
-    	if (qResult.isEmpty()){
+    	Iterable<Vertex> qResult = graph.command(new OCommandSQL(query)).execute(url);
+    	
+    	if (qResult.iterator().hasNext()){
+    		
+    		urlVertex = qResult.iterator().next();
+    		
+    		System.out.println(url+" "+urlVertex.toString());
+    	}else{
     		urlVertex = graph.addVertex("class:url");
     		urlVertex.setProperty("name", url);
-    	}else{
-    		urlVertex = graph.getVertex(qResult);
     	}
 
     	Vertex artistVertex = vertexMap.get(artist);
     	if(artistVertex!=null)
     		graph.addEdge(null,urlVertex, artistVertex, "contains");
     	else{
-    		System.out.println("could not find artist "+artist);
+    		System.out.println("could not find artist "+artist+" described in line "+line);
     	}
 
     }
