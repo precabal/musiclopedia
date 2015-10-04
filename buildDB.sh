@@ -1,5 +1,5 @@
 #!/bin/bash
-HOST_DNS='hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000'
+HOST_DNS='hdfs://ec2-52-1-220-20.compute-1.amazonaws.com:9000'
 HDFS_BASE_PATH='/user/data/'
 HADOOP_CLASSPATH=$(hadoop classpath)
 java -cp \
@@ -16,6 +16,7 @@ java -cp \
 /usr/local/hadoop/share/hadoop/hdfs/hadoop-hdfs-2.7.1.jar:\
 /usr/local/hadoop/share/hadoop/common/lib/commons-collections-3.2.1.jar:\
 $HADOOP_CLASSPATH \
+-Xmx4G \
 DB_Manager \
 data/jazzMusicians.txt \
 $HOST_DNS$HDFS_BASE_PATH \
