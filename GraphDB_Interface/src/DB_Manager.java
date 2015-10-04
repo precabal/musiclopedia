@@ -14,13 +14,17 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+import com.tinkerpop.blueprints.impls.orient.OrientVertexQuery;
 
 public class DB_Manager {
 	
@@ -68,10 +72,21 @@ public class DB_Manager {
 			System.out.println(done.toString());
 			
 		}
-		if(graph.getVertexType("artist")==null)
+		if(graph.getVertexType("artist")==null){
 			graph.createVertexType("artist");
 		
+			String sql = "CREATE PROPERTY artist.date integer";
+			OCommandSQL createIndex = new OCommandSQL(sql);
+			graph.command(createIndex).execute(new Object[0]);
 		
+			sql = "CREATE PROPERTY artist.name string";
+			createIndex = new OCommandSQL(sql);
+			graph.command(createIndex).execute(new Object[0]);
+	
+			sql = "create index artist.name on artist (name) unique";
+			createIndex = new OCommandSQL(sql);
+			graph.command(createIndex).execute(new Object[0]);
+		}
 
 	}
 
@@ -125,26 +140,30 @@ public class DB_Manager {
     	
     	int directoryCount =0;
     	for(FileStatus item : items){
-    		
+    		//System.out.println(item.getPath().toString());
             // ignoring files like _SUCCESS
             if(item.getPath().getName().startsWith("_")) {
               continue;
             }
     		
     		if(item.isDirectory()){
-    			System.out.println(directoryCount++);
+    			System.out.print(directoryCount++);
     			/* if file is a folder, call itself recursively */
-    			insertEdges(item.getPath());
+    			 if(item.getPath().getName().startsWith("output")){
+    				 insertEdges(item.getPath());
+    			 }
     		}else{
     	    	/* if it's a file, get the lines within it */
     	    	List<String> lines = getLines(item.getPath().toString(), fileSystem);
     			
+    	    	//int lineCount=0;
     	    	/*and add them as vertices to the db */
     	    	for(String line : lines){
-    	   
+    	    		//System.out.print(" "+lineCount++);
     	    		if(line.length()!=0)
     	    			addLineToDB(line);   
     	    	}
+    	    	//System.out.print("\n");
     		}
     	}
 
@@ -174,23 +193,23 @@ public class DB_Manager {
     
     private void addLineToDB(String line){
     	
-    	//array elements  = line.split(",").length
-    	int p = line.lastIndexOf(',');
+    	int p = line.lastIndexOf(",");
     	
-    	String url = line.substring(0,p); //split(",")[0];
+    	String url = line.substring(0,p);
     	String artist = line.substring(p+1);
     	
     	Vertex urlVertex = null;
     	
-    	String query = "SELECT FROM INDEX:url.name WHERE key = ?";
+    	//String query = String.format("SELECT FROM INDEX:url.name WHERE key = '%s'", url);
     	
-    	Iterable<Vertex> qResult = graph.command(new OCommandSQL(query)).execute(url);
+    	Iterable<Vertex> qResult =graph.getVertices("url.name", url); // graph.command(new OCommandSQL(query)).execute();
     	
     	if (qResult.iterator().hasNext()){
-    		
+    		//System.out.println(url);
+    		//System.out.println(qResult.iterator().next().toString());
     		urlVertex = qResult.iterator().next();
     		
-    		System.out.println(url+" "+urlVertex.toString());
+    		//System.out.println(url+" "+urlVertex.toString());
     	}else{
     		urlVertex = graph.addVertex("class:url");
     		urlVertex.setProperty("name", url);
