@@ -131,12 +131,12 @@ public class DB_Manager {
     	/* get all files and folders */
     	FileStatus[] items = fileSystem.listStatus(inputDirectory);
     	
-    	int directoryCount =0;
+    	int directoryCount = 0;
     	for(FileStatus item : items){
-    		//System.out.println(item.getPath().toString());
-            // ignoring files like _SUCCESS
+            
             if(item.getPath().getName().startsWith("_")) {
-              continue;
+            	/* ignoring files like _SUCCESS */
+            	continue;
             }
     		
     		if(item.isDirectory()){
@@ -149,21 +149,18 @@ public class DB_Manager {
     	    	/* if it's a file, get the lines within it */
     	    	List<String> lines = getLines(item.getPath().toString(), fileSystem);
     			
-    	    	//int lineCount=0;
     	    	/*and add them as vertices to the db */
     	    	for(String line : lines){
-    	    		//System.out.print(" "+lineCount++);
     	    		if(line.length()!=0)
     	    			addLineToDB(line);   
     	    	}
-    	    	//System.out.print("\n");
     		}
     	}
 
     }
     private List<String> getLines(String HDFSinputFilePath, FileSystem referenceFileSystem) throws IllegalArgumentException, IOException {
     	   
-    	List<String> results = new ArrayList<String>();
+    	List<String> lines = new ArrayList<String>();
     	
     	InputStream stream  = null;
     	
@@ -173,36 +170,30 @@ public class DB_Manager {
         
 		IOUtils.copy(stream, writer, "UTF-8");
 		
-        String raw = writer.toString();
+        String rawText = writer.toString();
         
-        for(String str: raw.split("\n")) {
-            results.add(str);
-        }
+        for(String line: rawText.split("\n"))
+            lines.add(line);
+        
     	
         stream.close();
         
-    	return results;
+    	return lines;
     }
     
     private void addLineToDB(String line){
     	
-    	int p = line.lastIndexOf(",");
+    	int separatorPos = line.lastIndexOf(",");
     	
-    	String url = line.substring(0,p);
-    	String artist = line.substring(p+1);
+    	String url = line.substring(0,separatorPos);
+    	String artist = line.substring(separatorPos+1);
     	
     	Vertex urlVertex = null;
     	
-    	//String query = String.format("SELECT FROM INDEX:url.name WHERE key = '%s'", url);
+    	Iterable<Vertex> vertices =graph.getVertices("url.name", url);
     	
-    	Iterable<Vertex> qResult =graph.getVertices("url.name", url); // graph.command(new OCommandSQL(query)).execute();
-    	
-    	if (qResult.iterator().hasNext()){
-    		//System.out.println(url);
-    		//System.out.println(qResult.iterator().next().toString());
-    		urlVertex = qResult.iterator().next();
-    		
-    		//System.out.println(url+" "+urlVertex.toString());
+    	if (vertices.iterator().hasNext()){
+    		urlVertex = vertices.iterator().next();
     	}else{
     		urlVertex = graph.addVertex("class:url");
     		urlVertex.setProperty("name", url);
