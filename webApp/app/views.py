@@ -16,17 +16,21 @@ def email():
 def slides():
 	return render_template("slides.html")
 
+@app.route('/tree_data.csv')
+def send_js():
+    return app.send_static_file('data/tree_data.csv')
+
 @app.route('/', methods=['POST'])
 @app.route('/index', methods=['POST'])
 @app.route("/email", methods=['POST'])
 def email_post():
 	artist_name = request.form["emailid"].title() #.capitalize() 
  	
-	#statement = "SELECT FROM E WHERE in.name=\'"+artist_name+"\'"
-	statement = "g.v('12:967').sideEffect{x=it}.in.out.filter{it != x}.name.groupCount()"
+	statement = "SELECT FROM E WHERE in.name=\'"+artist_name+"\'"
+	# statement = "g.v('12:967').sideEffect{x=it}.in.out.filter{it != x}.name.groupCount()"
     #response = session.execute(stmt, parameters=[emailid, date])
 
-	response = client.gremlin(statement)
+	response = client.query(statement)
 	print response
 	response_list = []
 	for record in response:
