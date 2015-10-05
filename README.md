@@ -28,16 +28,16 @@ A live demo is currently (July 2015) running at [http://musiclopedia.com:5000](h
 ## The Data
 The data comes from the [Common Crawl](http://commoncrawl.org)'s July 2015 web corpus. The corpus is ~168TB, but for this project, a subset of this data was processed, roughly 1TB.
 
-The files are available in Common Crawl's public AWS S3 bucket as gzipped WARC file formats. A WARC file contains a header for the whole file, as well as a header and body of each request and web page used and found during the crawl:
+The files are available in Common Crawl's public AWS S3 bucket as gzipped WET file formats. A WET file contains a header for the whole file, and a header and an extracted text body  (without HTML tags) of each request and web page used and found during the crawl:
 
-![warc-file](github/images/warc-file.png)
+![wet-file](github/images/wet-file.png)
 
 The artist list was obtained from the [MusicBrainz database](https://musicbrainz.org/doc/MusicBrainz_Database) by querying the ones with the 'jazz' tag.
 
 ## Pipeline Overview
 ![pipline](github/images/pipeline.png)
 
-The WARC files were processed through a traditional ETL process, but in a distributed manner. The [Spark](https://spark.apache.org) driver was responsible for downloading a gzipped WET file, which was parsed into separate records to be processed by each eorker separately. The process involved comparing a record's text with each entry of the artist list, saving to a [HDFS](http://hadoop.apache.org) CSV files with (url,artist) pairs indicating the matches found. 
+The WET files were processed through a traditional ETL process, but in a distributed manner. The [Spark](https://spark.apache.org) driver was responsible for downloading a gzipped WET file, which was parsed into separate records to be processed by each eorker separately. The process involved comparing a record's text with each entry of the artist list, saving to a [HDFS](http://hadoop.apache.org) CSV files with (url,artist) pairs indicating the matches found. 
 
 A subsequent batch process loaded the CSV files into a distributed [OrientDB graph database](http://orientdb.com/orientdb/), adding vertices for the Artists and Urls, and Edges for the connections between these. From these schema, views were calculated to establish connections between artists based on the statstics of the whole graph. 
 
