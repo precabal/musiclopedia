@@ -9,7 +9,7 @@ The purpose of the project is to gain experience in processing large amounts of 
 The end product might be interesting for music lovers and as a new source for reccomendation engines, since it mines on valuable information that music experts and systems post on the internet.
 
 ## Intro
-**Meshwork** is an open-source data pipeline which extracts and processes [Common Crawl](http://commoncrawl.org)'s web corpus, finding the [Page Rank](http://ilpubs.stanford.edu:8090/422/1/1999-66.pdf) and 1<sup>st</sup> degree relationships of each web page in the hyperlink graph. To do this, it leverages the following technologies:
+**Musiclopedia** is an open-source data pipeline which extracts and processes [Common Crawl](http://commoncrawl.org)'s web corpus, finding relationships between members of a list of artists extracted from the MusicBrainz Databases. To do this, it leverages the following technologies:
 
 - Big Data Pipeline
     - AWS EC2 and S3
