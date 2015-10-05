@@ -2,8 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
@@ -15,20 +13,17 @@ public class DateImporter {
 	
 	public static void main(String[] args) {
 
-    	if (args.length < 3) {
-      		System.err.println("Usage: DB_Manager <inputKeys> <edges> <db_path>");
+    	if (args.length < 2) {
+      		System.err.println("Usage: DB_Manager <inputKeys> <db_path>");
       		System.exit(1);
     	}
     	String keysFilePath = args[0];
-    	String edgesFilePath = args[1];
-    	String dbPath = args[2];
+    	String dbPath = args[1];
     	
     	DateImporter importer = new DateImporter();
     	
     	importer.loadDatabase(dbPath);
-    	importer.createClasses();
-    	importer.loadVerticesAndEdges(keysFilePath, edgesFilePath);
-    	
+    	importer.loadVertices(keysFilePath);    	
 		
 	}
 	public void loadDatabase(String databasePath){
@@ -36,45 +31,9 @@ public class DateImporter {
 		graph = factory.getNoTx(); //.getTx();
 		
 	}
-	public void createClasses(){
-		
-		
-		if(graph.getVertexType("url")==null){
-			
-		
-			graph.createVertexType("url");
-			String sql = "CREATE PROPERTY url.name string";
-			OCommandSQL createIndex = new OCommandSQL(sql);
-			graph.command(createIndex).execute(new Object[0]);
-			
-			sql = "create index url.name on url (name) unique";
-			createIndex = new OCommandSQL(sql);
-			Object done = graph.command(createIndex).execute(new Object[0]);
-			System.out.println(done.toString());
-			
-		}
-		if(graph.getVertexType("artist")==null){
-			graph.createVertexType("artist");
-		}
-		
-		if(graph.getVertexType("artist").getProperty("artist.date")!=null){
-			String sql = "CREATE PROPERTY artist.date integer";
-			OCommandSQL createIndex = new OCommandSQL(sql);
-			graph.command(createIndex).execute(new Object[0]);
-		}
-		
-			String sql = "CREATE PROPERTY artist.name string";
-			OCommandSQL createIndex = new OCommandSQL(sql);
-			graph.command(createIndex).execute(new Object[0]);
-		
-		
-		sql = "create index artist.name on artist (name) unique";
-		createIndex = new OCommandSQL(sql);
-		graph.command(createIndex).execute(new Object[0]);
-		
-	}
 
-	public void loadVerticesAndEdges(String keys, String edges) {
+
+	public void loadVertices(String keys) {
 		
 		try{
 			insertVertices(keys);
@@ -109,11 +68,11 @@ public class DateImporter {
 				date = 0;
 			}finally{
 
-				Iterable<Vertex> qResult = graph.getVertices("artist.name", artistName); // graph.command(new OCommandSQL(query)).execute();
+				Iterable<Vertex> vertices = graph.getVertices("artist.name", artistName);
 
 				Vertex artistVertex = null;
-				if (qResult.iterator().hasNext()){
-					artistVertex = qResult.iterator().next();
+				if (vertices.iterator().hasNext()){
+					artistVertex = vertices.iterator().next();
 					artistVertex.setProperty("date", date);
 				}else{
 					System.out.println(">>> WARNING: did not find artist: "+artistName);
