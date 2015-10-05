@@ -1,9 +1,9 @@
 #!/bin/bash
-COUNTER=500
+COUNTER=1784
 ITERATIONS=$(($1+$COUNTER))
 
 #set up paths
-HOST_DNS='hdfs://ec2-54-210-182-168.compute-1.amazonaws.com:9000/'
+HOST_DNS='hdfs://ec2-52-1-220-20.compute-1.amazonaws.com:9000/'
 DATA_FLDR='data'
 FILE_PATHS=$DATA_FLDR'/wet.paths'
 PREFIX='https://aws-publicdatasets.s3.amazonaws.com/'
@@ -17,7 +17,7 @@ while [  $COUNTER -lt $ITERATIONS ]; do
      let COUNTER=COUNTER+1 
 
      #read n-th line of wet files paths
-     CURRENT_FILE=$(sed ''$COUNTER'q;d' $FILE_PATHS | cut --characters=71-)
+     CURRENT_FILE=$(sed ''$COUNTER'q;d' $FILE_PATHS | cut --characters=70-)
      CURRENT_FILE_PATH=$(sed ''$COUNTER'q;d' $FILE_PATHS)
      echo '##### current file  = '$PREFIX$CURRENT_FILE
      echo '##### output folder = '$OUTPUT_FOLDER_PREFIX$COUNTER
