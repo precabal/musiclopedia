@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block email %}
+
+
+<div class="row">
+        <div class="col-md-4 col-md-offset-4" style="margin-top:10vh;">
+                <form action"emailop" method="POST"> <!-- action is the html template that will return the result to this input query -->
+                        <div class="form-group text-center">
+                                <label style="font-weight:300; font-size:36px;">Type in an artist name</label>
+                                <br /><br />
+                                <input type="text" class="form-control" id="emailid" name="emailid" placeholder="Frank Sinatra">
+                                <!--<select class="form-control" name="date">
+                                        <option>2015-09-01</option>
+                                        <option>2015-09-02</option>
+                                        <option>2015-09-03</option>
+                                </select>-->
+                                <br /><br />
+
+                                <button type="submit" value="Send" name="emailid-container" class="btn btn-default id-submit">Submit</button>
+                        </div>
+                </form>
+        </div>
+</div>
+
+
+<div class="row" style="float:right;">
+      <div class="col-md-10 col-md-offset-1">
+            <table class="table">
+            <caption>Websites where {{artist}} is mentioned</caption>
+                <thead>
+                    <tr>
+                      <th>record #</th>
+                      <th>link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in resultList %}
+                    <tr>
+                      <td>{{loop.index}}</td>
+                      <td>{{ item|urlize(80, true) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+      </div>
+</div>
+
+
+
+{% endblock %}
+
