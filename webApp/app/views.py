@@ -2,9 +2,11 @@ from app import app
 from flask import render_template, request
 import pyorient
 
+
 client = pyorient.OrientDB("52.1.220.20",2424)
 session_id = client.connect("root", "music")
-client.db_open("graphdb2", "admin", "admin" )
+client.db_open("finaldb", "admin", "admin" )
+			
 
 @app.route('/')
 @app.route('/index')
@@ -20,27 +22,31 @@ def slides():
 def send_js():
     return app.send_static_file('data/tree_data.csv')
 
+
+def getTree(depth, artist, parent, artistDate):
+	print artist
+	nodeInformation = [[artist,parent,artist,artistDate]];
+
+	if depth==0:
+		return nodeInformation
+
+
+	statement = "select name, date from (select expand(in('influences')) from artist where name =\'"+artist+"\')"
+	children = client.query(statement)	
+	
+	for child in children:
+		if child.name != parent:
+			nodeInformation.extend(getTree(depth-1,child.name, artist, child.date))
+
+	return nodeInformation	
+
+
 @app.route('/', methods=['POST'])
 @app.route('/index', methods=['POST'])
 @app.route("/email", methods=['POST'])
 def email_post():
-	artist_name = request.form["emailid"].title() #.capitalize() 
- 	
-	statement = "SELECT FROM E WHERE in.name=\'"+artist_name+"\'"
-	# statement = "g.v('12:967').sideEffect{x=it}.in.out.filter{it != x}.name.groupCount()"
-    #response = session.execute(stmt, parameters=[emailid, date])
-
-	response = client.query(statement)
-	print response
-	response_list = []
-	for record in response:
-		statement = "SELECT name FROM "+record._out.get()
-		response = client.query(statement)
-		url = response[0].oRecordData['name']
-		prefix = "http://"
-		if url[0] == "/":
-			prefix = "https:/"
-		url = prefix+url
-		response_list.append(url)
-	#return render_template("emailop.html", output=jsonresponse)	
-	return render_template("emailop.html", title = 'Home', resultList=response_list, artist=artist_name)
+	depthLevel = 2;	
+	artist_name = request.form["emailid"].title()
+ 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'),-1,0);
+ 	print treeInformation
+	return render_template("emailop.html", title = 'Home', artist=artist_name, treeData=treeInformation)

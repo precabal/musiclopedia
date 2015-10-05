@@ -8,7 +8,7 @@
                         <div class="form-group text-center">
                                 <label style="font-weight:300; font-size:36px;">Type in a JAZZ artist name</label>
                                 <br /><br />
-                                <input type="text" class="form-control" id="emailid" name="emailid" placeholder="Frank Sinatra">
+                                <input type="text" class="form-control" id="emailid" name="emailid" placeholder="{{artist}}">
                                 <!--<select class="form-control" name="date">
                                         <option>2015-09-01</option>
                                         <option>2015-09-02</option>
@@ -22,34 +22,21 @@
         </div>
 </div>
 
-<div class="row" style="float:right;">
-      <div class="col-md-10 col-md-offset-1" id="tree-container">
+<div class="row" style="float:none;">
+      <div class="col-lg-12 col-md-offset-0" id="tree-container">
       </div>
 </div>
 
-<div class="row" style="float:right;">
-      <div class="col-md-10 col-md-offset-1">
-            <table class="table">
-            <caption>Websites where {{artist}} is mentioned</caption>
-                <thead>
-                    <tr>
-                      <th>record #</th>
-                      <th>link</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in resultList %}
-                    <tr>
-                      <td>{{loop.index}}</td>
-                      <td>{{ item|urlize(80, true) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+<script type="text/javascript"> 
+  {% autoescape false %}
+    var lindaData = {{treeData}} 
+  {% endautoescape %}
+</script>
 
-      </div>
-</div>
 
 
 
 {% endblock %}
+
+
 

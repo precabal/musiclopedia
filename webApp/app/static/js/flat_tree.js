@@ -1,6 +1,6 @@
 var margin = {top: 20, right: 120, bottom: 20, left: 120},
-		width = 320 - margin.right - margin.left,
-		height = 240 - margin.top - margin.bottom;
+		width = 640 - margin.right - margin.left,
+		height = 280 - margin.top - margin.bottom;
 
 var minNPV, maxNPV;
 var minCashflow, maxCashflow;
@@ -36,12 +36,12 @@ var forward = svg.append("text")
 	.text(">");
 
 
-d3.csv("tree_data.csv", function(error, unparsedData) {
-	console.log("hello!");
-	console.log(unparsedData);
-	data = d3.csv.parseRows(unparsedData);
-	console.log("hello");
-	root =  parseData(data);
+//d3.csv("tree_data.csv", function(error, unparsedData) {
+//	console.log("hello!");
+//	console.log(unparsedData);
+	//data = d3.csv.parseRows(unparsedData);
+//	console.log("hello");
+	root =  parseData(lindaData);
 	console.log("hello");
 	root.x0 = height / 2;
 	root.y0 = 0;
@@ -58,7 +58,7 @@ d3.csv("tree_data.csv", function(error, unparsedData) {
 	console.log("root");
 	console.log(root);
 	update(root);
-});
+//});
 
 d3.select(self.frameElement).style("height", "800px");
 
@@ -92,7 +92,7 @@ function update(source) {
 			.attr("x", function(d) { return d.children || d._children ? -10 : 10; })
 			.attr("dy", ".35em")
 			.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-			.text(function(d) { return (d.npv/1000000000).toFixed(2); })
+			.text(function(d) { return d.npv; })
 			.style("fill-opacity", 1e-6);
 
 	// Transition nodes to their new position.
@@ -101,9 +101,9 @@ function update(source) {
 			.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
 	nodeUpdate.select("circle")
-			//.attr("r", 4.5)
-			// .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
-			.attr("r", function(d) {
+			.attr("r", 6.5)
+			 .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+			/*.attr("r", function(d) {
 				return (d.cashflow - minCashflow) /  (maxCashflow - minCashflow) * 10 + 5;
 			})
 			.style("fill", function(d) {
@@ -119,7 +119,7 @@ function update(source) {
 						return d3.rgb(255 - map_value, 255, 255 - map_value);
 					}
 				}
-			});
+			})*/;
 
 	nodeUpdate.select("text")
 			.style("fill-opacity", 1);
@@ -212,10 +212,10 @@ function TreeNode(index, parent_index, npv, cashflow) {
 function parseData(data) {
 	var treeNodes = [];
 	for (var i = 0; i < data.length; i++) {
-		var treeNode = new TreeNode(data[i][0], data[i][1], parseFloat(data[i][2]), parseFloat(data[i][3]));
+		var treeNode = new TreeNode(data[i][0], data[i][1], data[i][2], parseInt(data[i][3]));
 
 		for (var j = 0; j < treeNodes.length; j++) {
-			if (treeNodes[j].index == treeNode.parent_index.trim()) {
+			if (treeNodes[j].index == treeNode.parent_index){ //.trim()) {
 				treeNodes[j].children.push(treeNode);
 				break;
 			}
@@ -227,7 +227,7 @@ function parseData(data) {
 		if (treeNodes[j].children.length == 0) treeNodes[j].children = null;
 	}
 
-	calculateBoundingValues(treeNodes);
+	//calculateBoundingValues(treeNodes);
 
 	return treeNodes[0];
 }
