@@ -1,26 +1,9 @@
-{% extends "base.html" %}
+{% extends "interface.html" %}
 {% block email %}
+{{ super() }}
+{% endblock %}
 
-
-<div class="row">
-        <div class="col-md-4 col-md-offset-4" style="margin-top:10vh;">
-                <form action"emailop" method="POST"> <!-- action is the html template that will return the result to this input query -->
-                        <div class="form-group text-center">
-                                <label style="font-weight:300; font-size:36px;">Type in a JAZZ artist name</label>
-                                <br /><br />
-                                <input type="text" class="form-control" id="emailid" name="emailid" placeholder="{{artist}}">
-                                <!--<select class="form-control" name="date">
-                                        <option>2015-09-01</option>
-                                        <option>2015-09-02</option>
-                                        <option>2015-09-03</option>
-                                </select>-->
-                                <br /><br />
-
-                                <button type="submit" value="Send" name="emailid-container" class="btn btn-default id-submit">Submit</button>
-                        </div>
-                </form>
-        </div>
-</div>
+{% block results %}
 
 <div class="row" style="float:none;">
       <div class="col-lg-12 col-md-offset-0" id="tree-container">

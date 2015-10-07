@@ -8,11 +8,10 @@
                                         <label style="font-weight:300; font-size:36px;">Type in a JAZZ artist name</label>
                                         <br /><br />
                                         <input type="text" class="form-control" id="emailid" name="emailid" placeholder="...">
-                                        <!--<select class="form-control" name="date">
-                                                <option>2015-09-01</option>
-                                                <option>2015-09-02</option>
-                                                <option>2015-09-03</option>
-                                        </select>-->
+                                        <select class="form-control" name="date">
+                                                <option>Influencers</option>
+                                                <option>Influencees</option>
+                                        </select>
                                         <br /><br />
 
                                         <button type="submit" value="Send" name="emailid-container" class="btn btn-default id-submit">Submit</button>
@@ -21,4 +20,8 @@
                 </div>
         </div>
 
+{%block results %}
 {% endblock %}
+
+{% endblock %}
+
