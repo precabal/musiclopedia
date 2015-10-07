@@ -39,12 +39,6 @@ def getTree(depth, artist, parent, artistDate, direction):
 			nodeInformation.extend(getTree(depth-1,child.name, artist, child.date,direction))
 
 	return nodeInformation	
-@app.route('/future', methods=['POST'])
-def futureInfluences():
-	depthLevel = 2;	
-	artist_name = request.form["emailid"].title()
- 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'),-1,0,"out");
-	return render_template("emailop.html", title = 'Home', artist=artist_name, treeData=treeInformation)
 
 @app.route('/', methods=['POST'])
 @app.route('/index', methods=['POST'])
