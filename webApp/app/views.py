@@ -14,11 +14,12 @@ def email():
 	return render_template("interface.html")
 
 @app.route('/', methods=['POST'])
-@app.route('/index', methods=['POST'])
 def email_post():
 	depthLevel = 2;	
 	artist_name = request.form["artistName"].title()
- 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'),-1,0,"in");
+	queryType = "in" if (request.form["queryTypeSelector"] == "Influencers") else "out"
+	print queryType
+ 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'), -1, 0, queryType);
 	return render_template("results.html", title = 'Home', artist=artist_name, treeData=treeInformation)
 
 @app.route('/slides')
@@ -31,7 +32,7 @@ def send_js():
 
 
 def getTree(depth, artist, parent, artistDate, direction):
-	print artist
+	#print artist
 	nodeInformation = [[artist,parent,artist,artistDate]];
 
 	if depth==0:

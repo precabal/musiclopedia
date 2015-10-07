@@ -7,8 +7,8 @@
                                 <div class="form-group text-center">
                                         <label style="font-weight:300; font-size:36px;">Type in a JAZZ artist name</label>
                                         <br /><br />
-                                        <input type="text" class="form-control" id="artistName" name="artistName" placeholder="...">
-                                        <select class="form-control" name="date">
+                                        <input type="text" class="form-control" id="artistName" name="artistName" placeholder="">
+                                        <select class="form-control" name="queryTypeSelector">
                                                 <option>Influencers</option>
                                                 <option>Influencees</option>
                                         </select>
@@ -18,10 +18,11 @@
                                 </div>
                         </form>
                 </div>
+                {%block results %}
+                {% endblock %}
         </div>
 
-{%block results %}
-{% endblock %}
+
 
 {% endblock %}
 
