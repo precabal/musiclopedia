@@ -19,7 +19,7 @@ def email_post():
 	depthLevel = 2;	
 	artist_name = request.form["artistName"].title()
  	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'),-1,0,"in");
-	return render_template("emailop.html", title = 'Home', artist=artist_name, treeData=treeInformation)
+	return render_template("results.html", title = 'Home', artist=artist_name, treeData=treeInformation)
 
 @app.route('/slides')
 def slides():
