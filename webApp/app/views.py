@@ -23,7 +23,7 @@ def send_js():
     return app.send_static_file('data/tree_data.csv')
 
 
-def getTree(depth, artist, parent, artistDate):
+def getTree(depth, artist, parent, artistDate, direction):
 	print artist
 	nodeInformation = [[artist,parent,artist,artistDate]];
 
@@ -31,15 +31,20 @@ def getTree(depth, artist, parent, artistDate):
 		return nodeInformation
 
 
-	statement = "select name, date from (select expand(in('influences')) from artist where name =\'"+artist+"\')"
+	statement = "select name, date from (select expand("+direction+"('influences')) from artist where name =\'"+artist+"\')"
 	children = client.query(statement)	
 	
 	for child in children:
 		if child.name != parent:
-			nodeInformation.extend(getTree(depth-1,child.name, artist, child.date))
+			nodeInformation.extend(getTree(depth-1,child.name, artist, child.date,direction))
 
 	return nodeInformation	
-
+@app.route('/future', methods=['POST'])
+def futureInfluences():
+	depthLevel = 2;	
+	artist_name = request.form["emailid"].title()
+ 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'),-1,0,"out");
+	return render_template("emailop.html", title = 'Home', artist=artist_name, treeData=treeInformation)
 
 @app.route('/', methods=['POST'])
 @app.route('/index', methods=['POST'])
@@ -47,6 +52,5 @@ def getTree(depth, artist, parent, artistDate):
 def email_post():
 	depthLevel = 2;	
 	artist_name = request.form["emailid"].title()
- 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'),-1,0);
- 	print treeInformation
+ 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'),-1,0,"in");
 	return render_template("emailop.html", title = 'Home', artist=artist_name, treeData=treeInformation)

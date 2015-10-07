@@ -1,6 +1,6 @@
 var margin = {top: 20, right: 120, bottom: 20, left: 120},
-		width = 640 - margin.right - margin.left,
-		height = 280 - margin.top - margin.bottom;
+		width = 840 - margin.right - margin.left,
+		height = 300 - margin.top - margin.bottom;
 
 var minNPV, maxNPV;
 var minCashflow, maxCashflow;
@@ -9,19 +9,19 @@ var i = 0,
 		duration = 750,
 		root;
 
-var currentDepth = 1;
+var currentDepth = 0;
 
 var tree = d3.layout.tree()
 		.size([height, width]);
 
 var diagonal = d3.svg.diagonal()
-		.projection(function(d) { return [d.y, d.x]; });
+		.projection(function(d) { return [2*d.y, d.x]; });
 
 var svg = d3.select("#tree-container").append("svg")
 		.attr("width", width + margin.right + margin.left)
 		.attr("height", height + margin.top + margin.bottom)
 	.append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		.attr("transform", "translate(" + 2*margin.left + "," + margin.top + ")");
 
 var backward = svg.append("text")
 	.attr("class", "button")
@@ -81,7 +81,7 @@ function update(source) {
 	// Enter any new nodes at the parent's previous position.
 	var nodeEnter = node.enter().append("g")
 			.attr("class", "node")
-			.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+			.attr("transform", function(d) { return "translate(" + 2*source.y0 + "," + source.x0 + ")"; })
 			.on("click", expand);
 
 	nodeEnter.append("circle")
@@ -90,7 +90,7 @@ function update(source) {
 
 	nodeEnter.append("text")
 			.attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-			.attr("dy", ".35em")
+			.attr("dy", ".25em")
 			.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
 			.text(function(d) { return d.npv; })
 			.style("fill-opacity", 1e-6);
@@ -98,7 +98,7 @@ function update(source) {
 	// Transition nodes to their new position.
 	var nodeUpdate = node.transition()
 			.duration(duration)
-			.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+			.attr("transform", function(d) { return "translate(" + 2*d.y + "," + d.x + ")"; });
 
 	nodeUpdate.select("circle")
 			.attr("r", 6.5)
@@ -127,7 +127,7 @@ function update(source) {
 	// Transition exiting nodes to the parent's new position.
 	var nodeExit = node.exit().transition()
 			.duration(duration)
-			.attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+			.attr("transform", function(d) { return "translate(" + 2*source.y + "," + source.x + ")"; })
 			.remove();
 
 	nodeExit.select("circle")
