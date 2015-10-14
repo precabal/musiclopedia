@@ -1,4 +1,4 @@
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
+var margin = {top: 20, right: 20, bottom: 20, left: 100},
 		width = 840 - margin.right - margin.left,
 		height = 300 - margin.top - margin.bottom;
 
@@ -15,13 +15,13 @@ var tree = d3.layout.tree()
 		.size([height, width]);
 
 var diagonal = d3.svg.diagonal()
-		.projection(function(d) { return [2*d.y, d.x]; });
+		.projection(function(d) { return [3*d.y, d.x]; });
 
 var svg = d3.select("#tree-container").append("svg")
 		.attr("width", width + margin.right + margin.left)
 		.attr("height", height + margin.top + margin.bottom)
 	.append("g")
-		.attr("transform", "translate(" + 2*margin.left + "," + margin.top + ")");
+		.attr("transform", "translate(" + 3*margin.left + "," + margin.top + ")");
 
 var backward = svg.append("text")
 	.attr("class", "button")
@@ -81,7 +81,7 @@ function update(source) {
 	// Enter any new nodes at the parent's previous position.
 	var nodeEnter = node.enter().append("g")
 			.attr("class", "node")
-			.attr("transform", function(d) { return "translate(" + 2*source.y0 + "," + source.x0 + ")"; })
+			.attr("transform", function(d) { return "translate(" + 3*source.y0 + "," + source.x0 + ")"; })
 			.on("click", expand);
 
 	nodeEnter.append("circle")
@@ -98,7 +98,7 @@ function update(source) {
 	// Transition nodes to their new position.
 	var nodeUpdate = node.transition()
 			.duration(duration)
-			.attr("transform", function(d) { return "translate(" + 2*d.y + "," + d.x + ")"; });
+			.attr("transform", function(d) { return "translate(" + 3*d.y + "," + d.x + ")"; });
 
 	nodeUpdate.select("circle")
 			.attr("r", 6.5)
@@ -127,7 +127,7 @@ function update(source) {
 	// Transition exiting nodes to the parent's new position.
 	var nodeExit = node.exit().transition()
 			.duration(duration)
-			.attr("transform", function(d) { return "translate(" + 2*source.y + "," + source.x + ")"; })
+			.attr("transform", function(d) { return "translate(" + 3*source.y + "," + source.x + ")"; })
 			.remove();
 
 	nodeExit.select("circle")

@@ -4,6 +4,7 @@ from DBManager import DBManager
 from Credentials import Credentials
 import pyorient
 
+
 dbName = "finaldb"
 dbUser = "admin"
 dbPassword = "admin"
@@ -19,7 +20,7 @@ def email():
 
 @app.route('/', methods=['POST'])
 def email_post():
-	depthLevel = 2;	
+	depthLevel = 3;	
 	artist_name = request.form["artistName"].title()
 	queryType = "in" if (request.form["queryTypeSelector"] == "Influencers") else "out"
  	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'), -1, 0, queryType);
@@ -32,7 +33,7 @@ def slides():
 
 def getTree(depth, artist, parent, artistDate, direction):
 	
-	nodeInformation = [[str(depth)+str(artist),parent,artist,artistDate]];
+	nodeInformation = [[str(depth+hash(artist)+hash(parent)),parent,artist,artistDate]];
 	
 	if depth==0:
 		return nodeInformation
@@ -48,7 +49,7 @@ def getTree(depth, artist, parent, artistDate, direction):
 
 	for child in children:
 		if child.name != parent:
-			nodeInformation.extend(getTree(depth-1,child.name, str(depth)+str(artist), child.date,direction))
+			nodeInformation.extend(getTree(depth-1,child.name, str(depth+hash(artist)+hash(parent)), child.date,direction))
 
 	return nodeInformation	
 
