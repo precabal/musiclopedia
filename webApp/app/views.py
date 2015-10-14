@@ -24,7 +24,7 @@ def email_post():
 	artist_name = request.form["artistName"].title()
 	queryType = "in" if (request.form["queryTypeSelector"] == "Influencers") else "out"
  	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'), -1, 0, queryType);
- 	print str(treeInformation)
+ 	
 	return render_template("results.html", title = 'Home', artist=artist_name, treeData=treeInformation)
 
 @app.route('/slides')
@@ -33,7 +33,7 @@ def slides():
 
 def getTree(depth, artist, parent, artistDate, direction):
 	
-	nodeInformation = [[str(depth+hash(artist)+hash(parent)),parent,artist,artistDate]];
+	nodeInformation = [[str(depth+hash(artist)+hash(parent)),parent,artist.decode('utf-8').encode('latin-1', 'replace'),artistDate]];
 	
 	if depth==0:
 		return nodeInformation
