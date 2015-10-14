@@ -1,3 +1,5 @@
+Credentials.py
+
 ## Java development metadata ##
 *.class
 
@@ -62,3 +64,9 @@ local.properties
 *_ecdsa
 *_ed25519
 *_rsa
+
+##Python-flask development
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]

@@ -1,0 +1,23 @@
+{% extends "interface.html" %}
+{% block email %}
+{{ super() }}
+{% endblock %}
+
+{% block results %}
+
+<div class="row" style="float:none;">
+      <div class="col-lg-12 col-md-offset-0" id="tree-container">
+      </div>
+</div>
+
+<script type="text/javascript"> 
+  {% autoescape false %}
+    var lindaData = {{treeData}} 
+  {% endautoescape %}
+</script>
+
+
+{% endblock %}
+
+
+
