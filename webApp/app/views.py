@@ -23,7 +23,7 @@ def email_post():
 	depthLevel = 3;	
 	artist_name = request.form["artistName"].title()
 	queryType = "in" if (request.form["queryTypeSelector"] == "Influencers") else "out"
- 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'), -1, 0, queryType);
+ 	treeInformation = getTree(depthLevel, artist_name.encode('utf-8'), -1, '', 0, queryType);
  	
 	return render_template("results.html", title = 'Home', artist=artist_name, treeData=treeInformation)
 
@@ -31,14 +31,14 @@ def email_post():
 def slides():
 	return render_template("slides.html")
 
-def getTree(depth, artist, parent, artistDate, direction):
+def getTree(depth, artistName, parentID, parentName, birthDate, direction):
 	
-	nodeInformation = [[str(depth+hash(artist)+hash(parent)),parent,artist.decode('utf-8').encode('latin-1', 'replace'),artistDate]];
+	nodeInformation = [[str(depth+hash(artistName)+hash(parentID)), parentID, artistName.decode('utf-8').encode('latin-1', 'replace'), birthDate]];
 	
 	if depth==0:
 		return nodeInformation
 
-	statement = "select name, date from (select expand("+direction+"('influences')) from artist where name =\'"+artist+"\')"
+	statement = "select name, date from (select expand("+direction+"('influences')) from artist where name =\'"+artistName+"\')"
 	
 	try:
 		children = dbManager.client.query(statement)	
@@ -48,8 +48,8 @@ def getTree(depth, artist, parent, artistDate, direction):
 		children = dbManager.client.query(statement)
 
 	for child in children:
-		if child.name != parent:
-			nodeInformation.extend(getTree(depth-1,child.name, str(depth+hash(artist)+hash(parent)), child.date,direction))
+		if child.name != parentName:
+			nodeInformation.extend(getTree(depth-1, child.name, str(depth+hash(artistName)+hash(parentID)), artistName, child.date, direction))
 
 	return nodeInformation	
 
