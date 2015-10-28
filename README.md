@@ -1,5 +1,5 @@
 # musiclopedia
-[Musiclopedia](http://musiclopedia.info) is my big data project as part of [Insight Data Engineering](http://insightdataengineering.com/)'s Engineering fellowship program from September 2015 through October 2015.
+[Musiclopedia](http://musiclopedia.info) is my big data project as part of [Insight Data Science](http://insightdatascience.com/)'s Engineering Fellowship program from September 2015 through October 2015.
 
 > <b>NOTE:</b> The [Insight Data Engineering Fellows Program](http://insightdataengineering.com/) for the 2015 fall session has officially ended. 
 <br>
@@ -52,4 +52,3 @@ The results from these views are stored in the same database as a new type of Ed
 ## Presentation Deck
 Slides are available on [Slideshare](http://www.slideshare.net/PabloRecabal/pablo-recabal-week4demo).
 
-## Languages. Installation
