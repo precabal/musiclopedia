@@ -1,5 +1,12 @@
 # musiclopedia
-[Musiclopedia](http://musiclopedia.info:5000) is my big data project as part of [Insight Data Engineering](http://insightdataengineering.com/)'s Engineering fellowship program from September 2015 through October 2015.
+[Musiclopedia](http://musiclopedia.info) is my big data project as part of [Insight Data Engineering](http://insightdataengineering.com/)'s Engineering fellowship program from September 2015 through October 2015.
+
+> <b>NOTE:</b> The [Insight Data Engineering Fellows Program](http://insightdataengineering.com/) for the 2015 fall session has officially ended. 
+<br>
+As of <b>October 25, 2015</b>, the servers used to run the pipeline for the [Musiclopedia](http://musiclopedia.info) site have been shut down, so many of the components will not work as expected. 
+<br>
+Please see the screencast [here](https://www.youtube.com/watch?v=Via8603m3Iw) to watch the demo when it was live.
+
 
 ## What is Musiclopedia?
 It is a tool for finding influence between musical artists. It works by looking at references of artists in web crawl logs published by [CommonCrawl](http://commoncrawl.org/), and building a graph database that interconects two artists when these are mentioned in a number of common websites. Currentlty, it only support Jazz musicians, as the challenge of disambiguating their names is easier since these are typically very unique (for example, [Cannonball Adderley](https://en.wikipedia.org/wiki/Cannonball_Adderley))
